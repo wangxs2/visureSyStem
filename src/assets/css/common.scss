@@ -1,0 +1,148 @@
+  
+  .el-tooltip__popper.is-dark{
+    width:25%;
+  }
+  .cur-menu-name{
+    height:56px;
+    padding:0 17px;
+    background:rgba(255,255,255,1);
+    span{
+      font-size:18px;
+      font-family:Microsoft YaHei;
+      font-weight:400;
+      color:rgba(38,38,38,1);
+      line-height:56px;
+      padding-left:10px;
+      border-left:3px solid #0177D5
+    }
+  }
+  .table-search-wrapper{
+    margin:10px;
+    padding:20px 16px 0;
+    background:#fff;
+    .search-wrapper{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-start;
+      align-items:center;
+      .search-input{
+        margin:0 20px 20px 0;
+        span{
+          padding-right:10px;
+        }
+        .el-input__inner{
+          height:36px;
+          line-height:36px;
+        }
+        .el-date-editor.el-input, .el-date-editor.el-input__inner{
+          width:200px;
+        }
+        .el-select{
+          width:200px;
+        }
+
+      }
+      .search-btn{
+        width:60px;
+        height:36px;
+        background:rgba(79,132,253,1);
+        border-radius:4px;
+        font-size:14px;
+        font-family:Microsoft YaHei;
+        font-weight:400;
+        line-height:36px;
+        text-align:center;
+        color:rgba(255,255,255,1);
+        cursor:pointer;
+      }
+    }
+    .table-wrapper{
+      .el-table th{
+        padding:0;
+        height:36px;
+        line-height:36px;
+        text-align:center;
+        background:#EDF0F4;
+      }
+      .el-table td{
+        text-align:center;
+      }
+      .el-table tr{
+        &:nth-child(odd){
+          background:#F6F8FB;
+        }
+      }
+      .el-table thead{
+        color:#333;
+      }
+      .font-left{
+        text-align:left;
+      }
+      .block{
+        display:flex;
+        justify-content:flex-end;
+        margin-top:30px;
+
+        .el-pager li{
+          width:32px;
+          height:32px;
+          background:rgba(255,255,255,1);
+          border:1px solid rgba(223,223,223,1);
+          border-radius:4px;
+          padding:0;
+          min-width:32px;
+          line-height:32px;
+          margin:0 4px;
+        }
+        .el-pager li.active{
+          background:#0177D5;
+          color:#fff;
+
+        }
+        .el-pagination .btn-next, .el-pagination .btn-prev{
+          width:32px;
+          height:32px;
+          background:rgba(255,255,255,1);
+          border:1px solid rgba(223,223,223,1);
+          border-radius:4px;
+          padding:0;
+          min-width:32px;
+          line-height:32px;
+          margin:0 4px;
+
+        }
+      }
+    }
+  }
+  .look-goods{
+    padding-bottom:40px;
+    .el-dialog__header{
+      padding:0;
+      height:60px;
+      line-height:60px;
+    }
+    .el-dialog--center .el-dialog__body{
+      padding:0;
+    }
+    .el-dialog__body{
+      padding:0;
+    }
+    .el-table th{
+      text-align:center;
+      background:#EDF0F4;
+    }
+    .el-table tr{
+      
+        &:nth-child(even){
+          background:#F6F8FB;
+        }
+    }
+    .el-table th,.el-table td{
+      padding:0;
+      height:40px;
+      line-height:40px;
+      text-align:center;
+    }
+    
+  }
+  
