@@ -47,10 +47,23 @@
           <el-table-column prop="province" label="省" width="80"></el-table-column>
           <el-table-column prop="city" label="市" width="80"></el-table-column>
           <el-table-column prop="address" label="详细地址" width="140" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="date" label="物资提供方式" width="100"></el-table-column>
+          <el-table-column prop="date" label="物资提供方式" width="100">
+            <template slot-scope="scope">
+              <div v-if="scope.row.materialType==1">接受个人捐赠</div>
+              <div v-else-if="scope.row.materialType==2">接受企业捐赠</div>
+              <div v-else-if="scope.row.materialType==3">接受采购</div>
+              <div v-else-if="scope.row.materialType==4">捐赠</div>
+              <div v-else-if="scope.row.materialType==5">采购</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="descr" label="备注" width="100"></el-table-column>
           <el-table-column prop="createTime" label="需求发布时间" width="120"></el-table-column>
-          <el-table-column prop="source" label="是否需要物流" width="100"></el-table-column>
+          <el-table-column prop="isLogistics" label="是否需要物流" width="100">
+            <template slot-scope="scope">
+              <div v-if="scope.row.isLogistics==0">否</div>
+              <div v-else-if="scope.row.isLogistics==1">是</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="linkPeople" label="联系人" width="200">
             <template slot-scope="scope">
               <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
@@ -65,7 +78,7 @@
           <el-table-column prop="endTime" label="物资提供时间" width="120"></el-table-column>
           <el-table-column prop="name" label="查看" fixed="right" width="120">
             <template slot-scope="scope">
-              <span style="color:#4F84FD;cursor:pointer;" @click="clickLookGoods(scope.row)">查看所需物资</span>
+              <span style="color:#4F84FD;cursor:pointer;" @click="clickLookGoods(scope.row)">查看提供物资</span>
 
             </template>
           </el-table-column>

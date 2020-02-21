@@ -47,12 +47,10 @@
           <el-table-column prop="province" label="省" width="80"></el-table-column>
           <el-table-column prop="city" label="市" width="80"></el-table-column>
           <el-table-column prop="address" label="详细地址" width="140" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="date" label="物资对接情况" width="100"></el-table-column>
           <el-table-column prop="descr" label="备注" width="100"></el-table-column>
-          <el-table-column prop="source" label="服务覆盖范围" width="100"></el-table-column>
-          <el-table-column prop="source" label="服务起始时间" width="100"></el-table-column>
-          <el-table-column prop="source" label="服务结束时间" width="100"></el-table-column>
-          <el-table-column prop="source" label="服务提供类型" width="100"></el-table-column>
+          <el-table-column prop="serviceRange" label="服务覆盖范围" width="100"></el-table-column>
+          <el-table-column prop="startTime" label="服务起始时间" width="100"></el-table-column>
+          <el-table-column prop="endTime" label="服务结束时间" width="100"></el-table-column>
           <el-table-column prop="linkPeople" label="联系人" width="200">
             <template slot-scope="scope">
               <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
@@ -65,9 +63,9 @@
 
           </el-table-column>
           <el-table-column prop="endTime" label="物资提供时间" width="120"></el-table-column>
-          <el-table-column prop="name" label="查看" fixed="right" width="120">
+          <el-table-column prop="name" label="查看" fixed="right" width="150">
             <template slot-scope="scope">
-              <span style="color:#4F84FD;cursor:pointer;" @click="clickLookGoods(scope.row)">查看所需物资</span>
+              <span style="color:#4F84FD;cursor:pointer;" @click="clickLookGoods(scope.row)">查看提供的服务或物资</span>
 
             </template>
           </el-table-column>

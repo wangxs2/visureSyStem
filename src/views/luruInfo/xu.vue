@@ -47,10 +47,26 @@
           <el-table-column prop="province" label="省" width="80"></el-table-column>
           <el-table-column prop="city" label="市" width="80"></el-table-column>
           <el-table-column prop="address" label="详细地址" width="140" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="date" label="物资对接情况" width="100"></el-table-column>
+          <el-table-column prop="materialType" label="物资对接情况" width="100">
+            <template slot-scope="scope">
+              <div v-if="scope.row.materialType==1">接受个人捐赠</div>
+              <div v-else-if="scope.row.materialType==2">接受企业捐赠</div>
+              <div v-else-if="scope.row.materialType==3">接受采购</div>
+              <div v-else-if="scope.row.materialType==4">捐赠</div>
+              <div v-else-if="scope.row.materialType==5">采购</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="descr" label="备注" width="100"></el-table-column>
           <el-table-column prop="createTime" label="需求发布时间" width="120"></el-table-column>
-          <el-table-column prop="source" label="需求来源" width="100"></el-table-column>
+          <el-table-column prop="source" label="需求来源" width="100">
+            <template slot-scope="scope">
+              <div v-if="scope.row.source==1">政府发布</div>
+              <div v-else-if="scope.row.source==2">医院官方渠道</div>
+              <div v-else-if="scope.row.source==3">公益平台</div>
+              <div v-else-if="scope.row.source==4">微信公众号</div>
+              <div v-else-if="scope.row.source==5">其他</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="linkPeople" label="联系人" width="200">
             <template slot-scope="scope">
               <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
