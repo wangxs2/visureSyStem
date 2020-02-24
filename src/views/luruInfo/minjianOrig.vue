@@ -58,7 +58,9 @@
           </el-table-column>
           <el-table-column prop="picUrl" label="图片链接" width="180" >
             <template slot-scope="scope">
-              <div v-for="(item,i) in scope.row.picUrlList" :key="i" style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left" @click="goUrl(item)">{{item}}</div>
+              <!-- <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left"> -->
+                <img v-for="(item,i) in scope.row.picUrlList" :key="i" :src="'https://medicalsupplies.sitiits.com/'+item" alt="" style="width:60px;height:60px;margin:2px;" >
+              <!-- </div> -->
             </template>
 
           </el-table-column>
