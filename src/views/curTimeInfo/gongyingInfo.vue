@@ -32,6 +32,7 @@
           </el-select>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
+        <div class="search-input search-btn" @click="add">新增</div>
 
       </div>
       <div class="table-wrapper">
@@ -59,6 +60,15 @@
             </template>
           </el-table-column>
           <el-table-column prop="updateTime" label="更新时间"></el-table-column>
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="100">
+            <template slot-scope="scope">
+              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
+              <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <div class="block">
           <el-pagination
@@ -73,6 +83,32 @@
           </el-pagination>
         </div>
       </div>
+      <el-dialog :title="addOrEditPoint==1?'编辑':'新增'" :visible.sync="dialogVisible" :close-on-click-modal="false">
+        
+        <el-form label-position="right" :model="form" :rules="rules" ref="form" >
+          <el-form-item label="标题" prop="title">
+            <el-input v-model="form.title" placeholder="请输入标题"></el-input>
+          </el-form-item>
+          <el-form-item label="发布时间" prop="updateTime">
+            <el-date-picker v-model="form.updateTime" type="datetime" placeholder="选择发布时间" format="yyyy-MM-dd hh:mm:ss">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="消息主体" prop="body">
+            <el-input v-model="form.body" type="textarea" :rows="5" placeholder="请输入消息主体"></el-input>
+          </el-form-item>
+          <el-form-item label="状态" prop="status">
+            <el-radio-group v-model="form.status">
+              <el-radio v-for="item in statusList" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <!-- <el-form-item label="上传附件" prop="attachmentLink">
+            <el-input v-model="form.attachmentLink" placeholder="请输入网页链接"></el-input>
+          </el-form-item> -->
+          <el-form-item>
+            <el-button type="primary" @click="submitForm('form')">提交</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -109,6 +145,48 @@ export default {
       gridData: [],
       params:{},
       pageshow:true,
+
+      dialogVisible:false,
+      addOrEditPoint:0,
+      curId:'',
+      statusList:[
+        {
+          type:1,
+          name:"已核实"
+        },
+        {
+          type:0,
+          name:"未核实"
+        },
+        {
+          type:2,
+          name:"已完结"
+        }
+      ],
+      form:{
+        title:'', // 标题
+        updateTime:'', // 发布时间
+        body:'', // 消息主体
+        // attachmentLink:'', // 网页链接
+        status:1, // 是否置顶
+      },
+      rules: {
+        title: [
+          { required: true, message: '请输入标题', trigger: 'blur' },
+        ],
+        updateTime: [
+          { required: true, message: '请选择发布时间', trigger: 'change' },
+        ],
+        body: [
+          { required: true, message: '请输入消息主体', trigger: 'blur' },
+        ],
+        // attachmentLink: [
+        //   { required: false, message: '请输入网页链接', trigger: 'blur' },
+        // ],
+        status: [
+          { required: true, message: '请选择是否置顶', trigger: 'change' },
+        ],
+      },
     }
   },
   mounted () {
@@ -125,6 +203,89 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    add(){
+      this.addOrEditPoint=0
+      this.dialogVisible=true
+      this.form={
+        title:'',
+        updateTime:'',
+        body:'',
+        // attachmentLink:'',
+        status:1,
+      }
+    },
+    editRow(row){
+      this.addOrEditPoint=1
+      this.dialogVisible=true
+      this.curId=row.id
+      this.form={
+        title:row.title,
+        updateTime:row.updateTime,
+        body:row.body,
+        // attachmentLink:row.attachmentLink,
+        status:row.status,
+      }
+    },
+    deleteRow(row){
+      this.$fetchPost("supplyInfo/delete",{id:row.id}).then(res => {
+        this.$message({
+          message: res.message,
+          type: 'success'
+        });
+        if (res.result==1){
+          this.regetList()
+        }
+      })
+    },
+    submitForm(form){
+        this.$refs[form].validate((valid) => {
+          if (valid) {
+            
+            if (this.addOrEditPoint==0){
+              this.$fetchPost("supplyInfo/insert",this.form,"json").then(res => {
+                this.$message({
+                  message: res.message,
+                  type: 'success'
+                });
+                if (res.result==1){
+                  this.dialogVisible=false
+                  this.regetList()
+                }
+              })
+            }else if (this.addOrEditPoint==1){
+              this.form.id=this.curId
+              this.$fetchPost("supplyInfo/update",this.form,"json").then(res => {
+                this.$message({
+                  message: res.message,
+                  type: 'success'
+                });
+                if (res.result==1){
+                  this.dialogVisible=false
+                  this.regetList()
+                }
+              })
+            } 
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+    },
+    // 操作完成获取数据
+    regetList(){
+      this.pageshow = false
+      this.page=1
+      this.tableData=[]
+      this.params={
+        tab:"supply",
+        page:this.page,
+        pageSize:this.pageSize
+      }
+      this.getTableData(this.params)
+      this.$nextTick(() => {
+          this.pageshow = true
+      })
+    },
     getNeedsNameList(){
       this.$fetchGet("dock/getTitle",{
         tab:'supply'
