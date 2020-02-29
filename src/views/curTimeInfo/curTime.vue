@@ -199,7 +199,6 @@ export default {
   },
   mounted () {
     this.curHeight=screenHeight()
-    console.log(this.curHeight-230)
 
   },
   created () {
@@ -307,7 +306,6 @@ export default {
             }
           this.headlineList.push(obj)
           })
-          console.log(this.headlineList)
         }
       })
     },
@@ -323,7 +321,6 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item);
     },
     search(){
       this.pageshow = false
@@ -365,7 +362,6 @@ export default {
               }
               
             })
-            console.log(this.tableData)
           }
       })
     },

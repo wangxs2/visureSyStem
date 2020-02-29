@@ -161,7 +161,6 @@ export default {
   },
   mounted () {
     this.curHeight=screenHeight()
-    console.log(this.curHeight)
 
   },
   created () {
@@ -184,7 +183,6 @@ export default {
             }
           this.goodsNameList.push(obj)
           })
-          console.log(this.goodsNameList)
         }
       })
     },
@@ -200,7 +198,6 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item);
     },
     search(){
       this.pageshow = false
@@ -214,7 +211,6 @@ export default {
         page:this.page,
         pageSize:this.pageSize
       }
-      console.log(this.params)
       this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true
@@ -242,7 +238,6 @@ export default {
               }
               
             })
-            console.log(this.tableData)
           }
       })
     },

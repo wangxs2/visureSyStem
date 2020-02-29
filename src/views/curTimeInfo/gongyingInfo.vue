@@ -90,7 +90,8 @@
             <el-input v-model="form.title" placeholder="请输入标题"></el-input>
           </el-form-item>
           <el-form-item label="发布时间" prop="updateTime">
-            <el-date-picker v-model="form.updateTime" type="datetime" placeholder="选择发布时间" format="yyyy-MM-dd hh:mm:ss">
+            <el-date-picker v-model="form.updateTime" type="datetime" placeholder="选择发布时间" 
+            value-format="yyyy-MM-dd hh:mm:ss">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="消息主体" prop="body">
@@ -101,9 +102,11 @@
               <el-radio v-for="item in statusList" :key="item.type" :label="item.type">{{item.name}}</el-radio>
             </el-radio-group>
           </el-form-item>
-          <!-- <el-form-item label="上传附件" prop="attachmentLink">
-            <el-input v-model="form.attachmentLink" placeholder="请输入网页链接"></el-input>
-          </el-form-item> -->
+          <el-form-item label="上传附件" prop="links" ref="imageUpload">
+            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form.imgList"  :limit="1" v-model="form.links">
+              <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm('form')">提交</el-button>
           </el-form-item>
@@ -169,6 +172,7 @@ export default {
         body:'', // 消息主体
         // attachmentLink:'', // 网页链接
         status:1, // 是否置顶
+        imgList:[]
       },
       rules: {
         title: [
@@ -180,9 +184,9 @@ export default {
         body: [
           { required: true, message: '请输入消息主体', trigger: 'blur' },
         ],
-        // attachmentLink: [
-        //   { required: false, message: '请输入网页链接', trigger: 'blur' },
-        // ],
+        links: [
+          { required: true, message: '请上传文件',  },
+        ],
         status: [
           { required: true, message: '请选择是否置顶', trigger: 'change' },
         ],
@@ -195,7 +199,6 @@ export default {
   },
   created () {
     this.params={
-      tab:"supply",
       page:this.page,
       pageSize:this.pageSize
     }
@@ -203,6 +206,40 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+	  uploadImgSuccess(response, file, fileList) {
+     // 缓存接口调用所需的文件路径
+      this.$refs.imageUpload.clearValidate();
+      this.form.imgList=fileList
+      this.$message({
+        message: "上传成功",
+        type: 'success'
+      });
+	  },
+	  handleRemove(file, fileList) {
+     // 更新缓存文件
+     this.form.imgList=fileList
+      this.$message({
+        message: "删除成功",
+        type: 'success'
+      });
+	  },
+    handleHttpUpolad(file){
+      // let zip=new jsZip()
+      // zip.file(file.file.name,file.file)
+      // zip.generateAsync({
+      //   type:'blob',
+      //   compression:"DEFLATE",
+      //   compressionOption:{
+      //     level:8
+      //   },
+      // }).then(content => {
+        let data = new FormData();
+        data.append("uploadFile",file.file);  //图片
+        this.$fetchPostFile("file/upload",data).then(res => {
+	       file.onSuccess(res)
+          this.form.links=res
+        })
+    },
     add(){
       this.addOrEditPoint=0
       this.dialogVisible=true
@@ -210,8 +247,9 @@ export default {
         title:'',
         updateTime:'',
         body:'',
-        // attachmentLink:'',
+        links:'',
         status:1,
+        imgList:[]
       }
     },
     editRow(row){
@@ -222,8 +260,9 @@ export default {
         title:row.title,
         updateTime:row.updateTime,
         body:row.body,
-        // attachmentLink:row.attachmentLink,
+        links:row.links,
         status:row.status,
+        imgList: [{url: row.links, status: 'finished'}]
       }
     },
     deleteRow(row){
@@ -238,6 +277,7 @@ export default {
       })
     },
     submitForm(form){
+      if (this.form.imgList.length!==0){
         this.$refs[form].validate((valid) => {
           if (valid) {
             
@@ -270,6 +310,9 @@ export default {
             return false;
           }
         });
+      } else {
+        this.$message.error("请上传文件");
+      }
     },
     // 操作完成获取数据
     regetList(){
@@ -277,7 +320,6 @@ export default {
       this.page=1
       this.tableData=[]
       this.params={
-        tab:"supply",
         page:this.page,
         pageSize:this.pageSize
       }
@@ -287,9 +329,7 @@ export default {
       })
     },
     getNeedsNameList(){
-      this.$fetchGet("dock/getTitle",{
-        tab:'supply'
-      }).then(res => {
+      this.$fetchGet("supplyInfo/getTitle").then(res => {
         if (res.data&&res.data.length>0){
           let obj={}
           res.data.forEach(item => {
@@ -298,7 +338,6 @@ export default {
             }
           this.titleList.push(obj)
           })
-          console.log(this.titleList)
         }
       })
     },
@@ -314,14 +353,12 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item);
     },
     search(){
       this.pageshow = false
       this.page=1
       this.tableData=[]
       this.params={
-        tab:"supply",
         title:this.title,
         startDate:this.startEndTate[0],
         endDate:this.startEndTate[1],
@@ -336,7 +373,7 @@ export default {
 
     },
     getTableData(params){
-      this.$fetchGet("dock/getListByTab",params).then(res => {
+      this.$fetchGet("supplyInfo/getList",params).then(res => {
           this.total=res.data.total
           this.tableData=res.data.list
           if (this.tableData&&this.tableData.length>0){
@@ -356,7 +393,6 @@ export default {
               }
               
             })
-            console.log(this.tableData)
           }
       })
     },

@@ -168,7 +168,6 @@ export default {
             }
           this.goodsNameList.push(obj)
           })
-          console.log(this.goodsNameList)
         }
       })
     },
@@ -184,7 +183,6 @@ export default {
       };
     },
     handleSelect(item) {
-      console.log(item);
     },
     search(){
       this.pageshow = false
@@ -225,7 +223,6 @@ export default {
               }
               
             })
-            console.log(this.tableData)
           }
       })
     },

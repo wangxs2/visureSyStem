@@ -42,6 +42,7 @@ export default {
     Vue.prototype.$fetchPost = http.fetchPost
     Vue.prototype.$fetchPut = http.fetchPut
     Vue.prototype.$fetchDelete = http.fetchDelete
+    Vue.prototype.$fetchPostFile = http.fetchPostFile
 
     /**
      *@method 返回功能
