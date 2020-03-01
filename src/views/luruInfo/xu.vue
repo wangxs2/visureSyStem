@@ -32,6 +32,7 @@
           </el-select>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
+        <div class="search-input search-btn" @click="add">新增</div>
 
       </div>
       <div class="table-wrapper">
@@ -136,11 +137,94 @@
           </el-form-item>
         </el-form>
     </el-dialog>
+    <!-- 新增或编辑弹框 -->
+    <el-dialog :title="addOrEditPoint==1?'编辑':'新增'" :visible.sync="dialogVisibleAddOrEditShow" :close-on-click-modal="false">
+      <div class="all-input-wrapper">
+        <div class="input-wrapper">
+          <div><span>*</span>名称</div>
+          <el-input v-model="form1.name" placeholder="请输入名称"></el-input>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>所在地区</div>
+          <el-cascader v-model="form1.provinceAndCity" :options="options" :props="{value:'name',label:'name',children:'city'}" @change="handleChange"></el-cascader>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>详细地址（门牌号）</div>
+          <el-input v-model="form1.address" placeholder="请输入街道、门牌号等"></el-input>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>类型</div>
+          <el-radio-group v-model="form1.type">
+            <el-radio v-for="item in luruTypeRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>物资对接情况</div>
+          <el-radio-group v-model="form1.status">
+            <el-checkbox v-for="item in luruSupRadio" :key="item.type" :label="item.type">{{item.name}}</el-checkbox>
+          </el-radio-group>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>需求表</div>
+          <div class="comfirm-need-input-wrapper">
+            <div class="comfirm-need-top">
+              <div class="comfirm-need-head">
+                <div class="name">物资名称</div>
+                <div class="num">需求数量</div>
+              </div>
+              <div class="comfirm-need-body" v-for="(iteam,index) in form1.materialDetails" :key="index">
+                <div class="name">
+                  <el-input v-model="iteam.needsName" placeholder="请输入需求名称"    size="samll"></el-input>
+                </div>
+                <div class="num">
+                  <el-input v-model="iteam.needsNum" placeholder="请输入需求数量" size="samll"></el-input>
+                  <!-- <img @click="deleteDemand(index)" style="" src="../../assets/images/reduce1.png" alt=""> -->
+                </div>
+              </div>
+            </div>
+            <!-- <div class="comfirm-need-bottom" @click="addDemand"><img style="" src="../../assets/images/add1.png" alt="" >添加</div> -->
+          </div>
+          <!-- <span class="desc need-table-desc">数量填写可便于物资调配，如不确定数量可不填写</span> -->
+        </div>
+        <div>
+          <div><span>*</span>联系人-联系电话</div>
+          <el-input type="text" v-model="form1.contectTelList[0].name" placeholder="请输入街道、门牌号等"></el-input>
+          <!-- <p v-for="itam in (form1.contectTelList)">
+            <el-input v-model="itam.name" placeholder="请输入街道、门牌号等"></el-input>
+          </p> -->
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>需求发布时间</div>
+          <el-date-picker v-model="form1.createTime" type="datetime" placeholder="选择发布时间" 
+          value-format="yyyy-MM-dd">
+          </el-date-picker>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>需求来源</div>
+          <el-radio-group v-model="form1.source">
+            <el-radio v-for="item in luruSourceRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="input-wrapper">
+          <div>其他说明</div>
+          <el-input v-model="form1.needsDescr" type="textarea" :rows="5" placeholder="请输入其他说明"></el-input>
+        </div>
+        <div class="input-wrapper">
+          <div><span>*</span>上传附件</div>
+          <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form1.imgList"  :limit="5" v-model="form1.picUrl">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </div>
+          <el-button type="primary" @click="submitForm1('form1')">提交</el-button>
+
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {screenHeight,formatDate} from "../../utils/util"
+import json from "../../utils/city_code.json"
 export default {
   name: 'xu',
   components: {
@@ -195,6 +279,84 @@ export default {
         checkStatus:1, // 是否置顶
         checkDesc:'', // 网页链接
       },
+
+      dialogVisibleAddOrEditShow:false,
+      addOrEditPoint:0,
+      options:json,
+      form1:{
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:4, // 类型
+        status:[], // 物资对接情况
+        materialDetails:[
+          {
+            needsName:'',
+            needsNum:'',
+          }
+        ],//需求表
+        contectTelList:[
+          {
+            name:'',
+            tel:'',
+          }
+        ],
+        createTime:'', // 发布时间
+        source:1, // 需求来源 
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      luruTypeRadio:[ //录入类型单选数据
+        {
+          type:4,
+          name:"定点医院"
+        },{
+          type:5,
+          name:"发热门诊"
+        },{
+          type:6,
+          name:"防控指挥部"
+        },{
+          type:7,
+          name:"普通医院"
+        },{
+          type:0,
+          name:"其他抗疫单位"
+        },
+      ], 
+      luruSupRadio:[ //录入物资对接情况单选数据
+        {
+          type:1,
+          name:"接受个人捐赠"
+        },{
+          type:2,
+          name:"接受企业捐赠"
+        },{
+          type:3,
+          name:"接受采购"
+        },
+      ], 
+      luruSourceRadio:[ //录入需求来源单选数据
+        {
+          type:1,
+          name:"政府发布"
+        },{
+          type:2,
+          name:"医院官方渠道"
+        },{
+          type:3,
+          name:"公益平台"
+        },{
+          type:4,
+          name:"微信公众号"
+        },{
+          type:5,
+          name:"其他"
+        },
+      ],
+      needList:["N95口罩","外科口罩","一次性医用口罩","隔离衣","一次性手术衣","医用帽","护目镜","防护眼罩","防护面罩","医用手套","防污染鞋套","长筒防护靴","测温仪","84消毒液","75%浓度酒精","一次性消毒床罩","消毒设备","对口药品","负压担架","负压救护车","消洗设备","全面型呼吸防护器","其他"],
     }
   },
   mounted () {
@@ -202,6 +364,7 @@ export default {
 
   },
   created () {
+    console.log(this.form1.contectTelList[0].name)
     this.params={
       materialType:1,
       page:this.page,
@@ -211,6 +374,136 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    
+    //添加需求表
+    addDemand(){
+      
+      // this.curNeed1=0
+      // let x=this.form1.materialDetails.some(item =>{
+      //     // return item.needsName == ""||item.needsNum == ""
+      //     return item.needsName == ""
+      // })
+      // if(x||this.form1.materialDetails[this.testindex].needsName==''){
+      //   this.$toast('请完善信息(至少输入物资名称)');
+      // }else{
+      //   this.testindex++
+      //   this.form1.materialDetails.push({
+      //     needsName:'',
+      //     needsNum:'',
+      //   })
+      // }
+    },
+    
+    //删除需求表
+    deleteDemand(index){
+      // if(this.testindex<1){
+      //   this.form1.materialDetails[index].needsName=''
+      //   this.form1.materialDetails[index].needsNum=''
+      //   this.$toast('至少添加一条需求');
+      // }else{
+      //   this.form1.materialDetails.splice(index,1)
+      //   this.testindex--
+      // }
+      
+    },
+	  uploadImgSuccess(response, file, fileList) {
+     // 缓存接口调用所需的文件路径
+      this.$refs.imageUpload.clearValidate();
+      this.form.imgList=fileList
+      this.$message({
+        message: "上传成功",
+        type: 'success'
+      });
+	  },
+	  handleRemove(file, fileList) {
+     // 更新缓存文件
+     this.form.imgList=fileList
+      this.$message({
+        message: "删除成功",
+        type: 'success'
+      });
+	  },
+    handleHttpUpolad(file){
+      // let zip=new jsZip()
+      // zip.file(file.file.name,file.file)
+      // zip.generateAsync({
+      //   type:'blob',
+      //   compression:"DEFLATE",
+      //   compressionOption:{
+      //     level:8
+      //   },
+      // }).then(content => {
+        let data = new FormData();
+        data.append("uploadFile",file.file);  //图片
+        this.$fetchPostFile("file/upload",data).then(res => {
+	       file.onSuccess(res)
+          this.form.links=res
+        })
+    },
+    handleChange(value){
+      console.log(value)
+      this.form1.province=value[0]
+      this.form1.city=value[1]
+
+    },
+    add(){
+      this.addOrEditPoint=0
+      this.dialogVisibleAddOrEditShow=true
+      this.form1={
+        title:'',
+        updateTime:'',
+        body:'',
+        links:'',
+        status:1,
+        imgList:[]
+      }
+    },
+    editRow(row){
+      this.addOrEditPoint=1
+      this.dialogVisibleAddOrEditShow=true
+      this.curId=row.id
+      this.form1={
+        title:row.title,
+        updateTime:row.updateTime,
+        body:row.body,
+        links:row.links,
+        status:row.status,
+        imgList: [{url: row.links, status: 'finished'}]
+      }
+    },
+    submitForm1(form){
+      this.$refs[form].validate((valid) => {
+        if (valid) {
+          if (this.addOrEditPoint==0){
+            this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
+              this.$message({
+                message: res.message,
+                type: 'success'
+              });
+              if (res.result==1){
+                this.dialogVisibleAddOrEditShow=false
+                this.regetList()
+              }
+            })
+          }else if (this.addOrEditPoint==1){
+            this.form.id=this.curId
+            this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
+              this.$message({
+                message: res.message,
+                type: 'success'
+              });
+              if (res.result==1){
+                this.dialogVisibleAddOrEditShow=false
+                this.regetList()
+              }
+            })
+          } 
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
     clickPublish(row){
       this.dialogPublishShow=true
       this.curId=row.id
@@ -229,7 +522,6 @@ export default {
         }
       })
     },
-    editRow(){},
     // 操作完成获取数据
     regetList(){
       this.pageshow = false
