@@ -6,12 +6,14 @@
     <div class="table-search-wrapper">
       <div class="search-wrapper">
         <div class="search-input">
-          <span>创建时间:</span>
+          <span>起始时间-结束时间:</span>
           <el-date-picker
-            v-model="createTime"
-            type="datetime"
+            v-model="startEndTate"
+            type="datetimerange"
             value-format="yyyy-MM-dd hh:mm:ss"
-            placeholder="选择日期时间">
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期">
           </el-date-picker>
         </div>
         <div class="search-input">
@@ -47,13 +49,13 @@
           <el-table-column prop="province" label="省" width="80"></el-table-column>
           <el-table-column prop="city" label="市" width="80"></el-table-column>
           <el-table-column prop="address" label="详细地址" width="140" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="materialType" label="物资对接情况" width="100">
+          <el-table-column prop="status" label="物资对接情况" width="100">
             <template slot-scope="scope">
-              <div v-if="scope.row.materialType==1">接受个人捐赠</div>
-              <div v-else-if="scope.row.materialType==2">接受企业捐赠</div>
-              <div v-else-if="scope.row.materialType==3">接受采购</div>
-              <div v-else-if="scope.row.materialType==4">捐赠</div>
-              <div v-else-if="scope.row.materialType==5">采购</div>
+              <div v-if="scope.row.status==1">接受个人捐赠</div>
+              <div v-else-if="scope.row.status==2">接受企业捐赠</div>
+              <div v-else-if="scope.row.status==3">接受采购</div>
+              <div v-else-if="scope.row.status==4">捐赠</div>
+              <div v-else-if="scope.row.status==5">采购</div>
             </template>
           </el-table-column>
           <el-table-column prop="descr" label="备注" width="100"></el-table-column>
@@ -72,18 +74,21 @@
               <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="picUrl" label="图片链接" width="340" >
+          <el-table-column prop="attachment" label="图片链接" width="340" >
             <template slot-scope="scope">
               <!-- <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left"> -->
-                <img v-for="(item,i) in scope.row.picUrlList" :key="i" :src="'https://medicalsupplies.sitiits.com/'+item" alt="" style="width:60px;height:60px;margin:2px;" >
+                <img v-for="(item,i) in scope.row.attachment" :key="i" :src="item" alt="" style="width:60px;height:60px;margin:2px;" >
               <!-- </div> -->
             </template>
 
           </el-table-column>
           <el-table-column prop="endTime" label="物资提供时间" width="120"></el-table-column>
-          <el-table-column prop="name" label="查看" fixed="right" width="120">
+          <el-table-column prop="name" label="查看或操作" fixed="right" width="120">
             <template slot-scope="scope">
-              <span style="color:#4F84FD;cursor:pointer;" @click="clickLookGoods(scope.row)">查看所需物资</span>
+              <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
+              <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
+              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
+              <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
             </template>
           </el-table-column>
@@ -115,11 +120,27 @@
         </el-table-column> -->
       </el-table>
     </el-dialog>
+    <!-- 审核弹框 -->
+    <el-dialog title="审核" :visible.sync="dialogPublishShow" :close-on-click-modal="false" width="480" center custom-class="look-goods">
+        <el-form label-position="right" :model="form">
+          <el-form-item label="是否审核">
+            <el-radio-group v-model="form.checkStatus">
+              <el-radio v-for="item in statusList" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="物资表述">
+            <el-input v-model="form.checkDesc" type="textarea" :rows="5" placeholder="请输入描述内容"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm">提交</el-button>
+          </el-form-item>
+        </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {screenHeight} from "../../utils/util"
+import {screenHeight,formatDate} from "../../utils/util"
 export default {
   name: 'xu',
   components: {
@@ -130,7 +151,7 @@ export default {
       dialogTableVisible:false,
       page:1,
       pageSize:10,
-      createTime:'',
+      startEndTate:[],
       goodsName:'',
       acceptInfo:'',
       goodsNameList: [],
@@ -157,6 +178,23 @@ export default {
       gridData: [],
       params:{},
       pageshow:true,
+
+      dialogPublishShow:false,
+      curId:'',
+      statusList:[
+        {
+          type:1,
+          name:"审核通过"
+        },
+        {
+          type:0,
+          name:"审核不通过"
+        }
+      ],
+      form:{
+        checkStatus:1, // 是否置顶
+        checkDesc:'', // 网页链接
+      },
     }
   },
   mounted () {
@@ -173,8 +211,55 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    clickPublish(row){
+      this.dialogPublishShow=true
+      this.curId=row.id
+
+    },
+    submitForm(){
+      this.form.id=this.curId
+      this.$fetchPost("material/publish",this.form).then(res => {
+        this.$message({
+          message: res.message,
+          type: 'success'
+        });
+        if (res.result==1){
+          this.dialogPublishShow=false
+          this.regetList()
+        }
+      })
+    },
+    editRow(){},
+    // 操作完成获取数据
+    regetList(){
+      this.pageshow = false
+      this.page=1
+      this.tableData=[]
+      this.params={
+        materialType:1,
+        page:this.page,
+        pageSize:this.pageSize
+      }
+      this.getTableData(this.params)
+      this.$nextTick(() => {
+          this.pageshow = true
+      })
+    },
+    deleteRow(row){
+      this.$fetchPost("material/shield",{id:row.id}).then(res => {
+        this.$message({
+          message: res.message,
+          type: 'success'
+        });
+        if (res.result==1){
+          this.regetList()
+        }
+      })
+    },
     getNeedsNameList(){
-      this.$fetchGet("prepare/getNeedsName").then(res => {
+      this.$fetchGet("material/getNeedsName",{
+        materialType:1
+      }).then(res => {
         if (res.data&&res.data.length>0){
           let obj={}
           res.data.forEach(item => {
@@ -205,7 +290,8 @@ export default {
       this.tableData=[]
       this.params={
         materialType:1,
-        createTime:this.createTime,
+        startDate:this.startEndTate[0],
+        endDate:this.startEndTate[1],
         needName:this.goodsName,
         status:this.acceptInfo,
         page:this.page,
@@ -218,7 +304,7 @@ export default {
 
     },
     getTableData(params){
-      this.$fetchGet("prepare/getMaterial",params).then(res => {
+      this.$fetchGet("material/getMaterial",params).then(res => {
           this.total=res.data.total
           this.tableData=res.data.list
           if (this.tableData&&this.tableData.length>0){
@@ -233,8 +319,8 @@ export default {
                 })
                 item.linkPeopleList=item.linkPeopleList
               }
-              if (item.picUrl){
-                item.picUrlList=item.picUrl.split(",")
+              if (item.createTime){
+                item.createTime=formatDate(item.createTime)
               }
               
             })
@@ -251,7 +337,7 @@ export default {
     },
     clickLookGoods(row){
       this.dialogTableVisible=true
-      this.gridData=row.prepareDetails
+      this.gridData=row.materialDetails
     },
     goUrl(item){
       window.open('https://medicalsupplies.sitiits.com/'+item)
