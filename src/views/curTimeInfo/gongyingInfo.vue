@@ -56,7 +56,7 @@
           </el-table-column>
           <el-table-column prop="links" label="链接">
             <template slot-scope="scope">
-              <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left"v-if="scope.row.links" @click="goUrl(scope.row)">{{scope.row.links}}</div>
+              <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left" v-if="scope.row.attachment" @click="goUrl(scope.row)">{{scope.row.attachment[0]}}</div>
             </template>
           </el-table-column>
           <el-table-column prop="updateTime" label="更新时间"></el-table-column>
@@ -185,7 +185,7 @@ export default {
           { required: true, message: '请输入消息主体', trigger: 'blur' },
         ],
         links: [
-          { required: true, message: '请上传文件',  },
+          { required: false, message: '请上传文件',  },
         ],
         status: [
           { required: true, message: '请选择是否置顶', trigger: 'change' },
@@ -277,42 +277,38 @@ export default {
       })
     },
     submitForm(form){
-      if (this.form.imgList.length!==0){
-        this.$refs[form].validate((valid) => {
-          if (valid) {
-            
-            if (this.addOrEditPoint==0){
-              this.$fetchPost("supplyInfo/insert",this.form,"json").then(res => {
-                this.$message({
-                  message: res.message,
-                  type: 'success'
-                });
-                if (res.result==1){
-                  this.dialogVisible=false
-                  this.regetList()
-                }
-              })
-            }else if (this.addOrEditPoint==1){
-              this.form.id=this.curId
-              this.$fetchPost("supplyInfo/update",this.form,"json").then(res => {
-                this.$message({
-                  message: res.message,
-                  type: 'success'
-                });
-                if (res.result==1){
-                  this.dialogVisible=false
-                  this.regetList()
-                }
-              })
-            } 
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      } else {
-        this.$message.error("请上传文件");
-      }
+      this.$refs[form].validate((valid) => {
+        if (valid) {
+          
+          if (this.addOrEditPoint==0){
+            this.$fetchPost("supplyInfo/insert",this.form,"json").then(res => {
+              this.$message({
+                message: res.message,
+                type: 'success'
+              });
+              if (res.result==1){
+                this.dialogVisible=false
+                this.regetList()
+              }
+            })
+          }else if (this.addOrEditPoint==1){
+            this.form.id=this.curId
+            this.$fetchPost("supplyInfo/update",this.form,"json").then(res => {
+              this.$message({
+                message: res.message,
+                type: 'success'
+              });
+              if (res.result==1){
+                this.dialogVisible=false
+                this.regetList()
+              }
+            })
+          } 
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
     },
     // 操作完成获取数据
     regetList(){
@@ -397,7 +393,7 @@ export default {
       })
     },
     goUrl(row){
-      window.open(row.links)
+      window.open(row.attachment[0])
     },
     handleSizeChange(val) {
       this.params.pageSize=val
