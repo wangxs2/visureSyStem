@@ -28,6 +28,17 @@
                 unique-opened
                 text-color="#fff"
                 active-text-color="#fff">
+                <el-submenu index="/hospitalInfo">
+                    <template slot="title">
+                        <img src="../../assets/images/icon_1.png"  alt="" />
+                        <span>发布信息维护</span>
+                    </template>
+                    <el-menu-item-group title="">
+                        <el-menu-item index="/hospitalInfo/xu"><img src="../../assets/images/icon_1_1.png"  alt="" />需方</el-menu-item>
+                        <el-menu-item index="/hospitalInfo/gong"><img src="../../assets/images/icon_1_2.png"  alt="" />供方</el-menu-item>
+                        <el-menu-item index="/hospitalInfo/minjianOrig"><img src="../../assets/images/icon_1_3.png"  alt="" />民间组织</el-menu-item>
+                    </el-menu-item-group>
+                </el-submenu>
                 <el-submenu index="/luruInfo">
                     <template slot="title">
                         <img src="../../assets/images/icon_1.png"  alt="" />

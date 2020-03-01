@@ -13,6 +13,10 @@ import luruInfo from '@/views/luruInfo/index.vue'
 import gong from '@/views/luruInfo/gong.vue'
 import xu from '@/views/luruInfo/xu.vue'
 import minjianOrig from '@/views/luruInfo/minjianOrig.vue'
+import hospitalInfo from '@/views/hospitalInfo/index.vue'
+import gong1 from '@/views/hospitalInfo/gong.vue'
+import xu1 from '@/views/hospitalInfo/xu.vue'
+import minjianOrig1 from '@/views/hospitalInfo/minjianOrig.vue'
 Vue.use(Router)
 const routerPush = Router.prototype.push
 Router.prototype.push = function push (location) {
@@ -36,6 +40,35 @@ export default new Router({
             name: 'layout',
             component: layout,
             children: [
+                {
+                    path: '/hospitalInfo',
+                    name: 'hospitalInfo',
+                    component: hospitalInfo,
+                    curMenuName:"发布信息维护",
+                    children:[
+                        {
+                            path: '/hospitalInfo/xu',
+                            name: 'xu',
+                            component: xu1,
+                            curMenuName:"发布信息维护/需方"
+
+                        },
+                        {
+                            path: '/hospitalInfo/gong',
+                            name: 'gong',
+                            component: gong1,
+                            curMenuName:"发布信息维护/供方"
+
+                        },
+                        {
+                            path: '/hospitalInfo/minjianOrig',
+                            name: 'minjianOrig',
+                            component: minjianOrig1,
+                            curMenuName:"发布信息维护/民间组织"
+
+                        },
+                    ]
+                },
                 
                 {
                     path: '/luruInfo',

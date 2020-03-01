@@ -81,7 +81,7 @@ export default {
               type: 'success'
             });
             sessionStorage.setItem('userInfo',JSON.stringify(res.info))
-            this.$router.push({path:'/luruInfo/xu'})
+            this.$router.push({path:'/hospitalInfo/xu'})
           } else if(res.status=="fail"){
             this.$message({
               message: '请输入正确的用户名密码',
