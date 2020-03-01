@@ -415,6 +415,9 @@ export default {
   .el-date-editor.el-input, .el-date-editor.el-input__inner{
     width:350px !important;
   }
+  .el-upload-list{
+    width:350px;
+  }
   
 }
 
