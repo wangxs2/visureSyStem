@@ -52,7 +52,7 @@
             <template slot-scope="scope">
               <div style="padding:5px;" v-if="scope.row.status==0">未核实</div>
               <div style="padding:5px;" v-if="scope.row.status==1">已核实</div>
-              <div style="padding:5px;" v-if="scope.row.status==2">已完成</div>
+              <div style="padding:5px;" v-if="scope.row.status==2">已完结</div>
             </template>
           </el-table-column>
           <el-table-column prop="links" label="链接">
@@ -104,10 +104,9 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="上传附件" prop="links" ref="imageUpload">
-            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form.imgList"  :limit="1" v-model="form.links">
+            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :on-exceed="changeExceed" :file-list="form.imgList"  :limit="1" v-model="form.links">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
-            <div style="padding:10px;">上传文件前，若覆盖文件，请先删除后在上传</div>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm('form')">提交</el-button>
@@ -236,19 +235,23 @@ export default {
       //     level:8
       //   },
       // }).then(content => {
-        console.log(file)
+        // console.log(file)
         // if (file.file.type.indexOf("pdf")!=-1&&file.file.type.indexOf("doc")!=-1&&file.file.type.indexOf("docx")!=-1){
           let data = new FormData();
           data.append("uploadFile",file.file);  //图片
           this.$fetchPostFile("file/upload",data).then(res => {
             file.onSuccess(res)
             this.form.links=res
+          }).catch(res => {
           })
 
         // } else {
         //   this.$message.error("请上传pdf或者word文件")
 
         // }
+    },
+    changeExceed(files, fileList){
+      this.$message.error("当前限制只可上传1个文件，重传文件前，请先删除旧文件")
     },
     add(){
       this.addOrEditPoint=0

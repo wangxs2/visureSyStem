@@ -56,9 +56,17 @@
               <div v-if="scope.row.status==2">接受企业捐赠</div>
               <div v-if="scope.row.status==3">接受采购</div>
               <div v-if="scope.row.status=='1,2'">接受个人捐赠,接受企业捐赠</div>
+              <div v-if="scope.row.status=='2,1'">接受企业捐赠,接受个人捐赠</div>
               <div v-if="scope.row.status=='1,3'">接受个人捐赠,接受采购</div>
+              <div v-if="scope.row.status=='3,1'">接受采购,接受个人捐赠</div>
               <div v-if="scope.row.status=='2,3'">接受企业捐赠,接受采购</div>
+              <div v-if="scope.row.status=='3,2'">接受采购,接受企业捐赠</div>
               <div v-if="scope.row.status=='1,2,3'">接受个人捐赠,接受企业捐赠,接受采购</div>
+              <div v-if="scope.row.status=='1,3,2'">接受个人捐赠,接受采购,接受企业捐赠</div>
+              <div v-if="scope.row.status=='2,1,3'">接受企业捐赠,接受个人捐赠,接受采购</div>
+              <div v-if="scope.row.status=='2,3,1'">接受企业捐赠,接受采购,接受个人捐赠</div>
+              <div v-if="scope.row.status=='3,1,2'">接受采购,接受个人捐赠,接受企业捐赠</div>
+              <div v-if="scope.row.status=='3,2,1'">接受采购,接受企业捐赠,接受个人捐赠</div>
               <!-- <div v-if="scope.row.status==4">捐赠</div>
               <div v-if="scope.row.status==5">采购</div> -->
             </template>
@@ -102,7 +110,7 @@
               <div v-else-if="scope.row.hasShow==1">已发布</div>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="查看或操作" fixed="right" width="120">
+          <el-table-column prop="name" label="查看或操作" fixed="right" width="160">
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
@@ -572,42 +580,60 @@ export default {
       this.imgList=[]  //图片列表
       this.curImgList=[]
     },
+    //地址解析
+    addresschange(address){
+      var geocoder = new AMap.Geocoder();
+      geocoder.getLocation(address, (status, result)=> {
+          if (status === 'complete'&&result.geocodes.length) {
+          
+            let lnglat = result.geocodes[0].location
+            //  return lnglat
+            this.form1.longitude=lnglat.lng
+            this.form1.latitude=lnglat.lat
+            
+
+            this.form1.type=this.type
+            this.form1.materialDetails=this.materialDetails
+            this.form1.contectTelList=this.contectTelList
+            this.form1.source=this.source
+            console.log(this.form1)
+            
+            if (this.addOrEditPoint==0){
+              this.$fetchPost("material/insert",this.form1,"json").then(res => {
+                this.$message({
+                  message: res.message,
+                  type: 'success'
+                });
+                if (res.result==1){
+                  this.dialogVisibleAddOrEditShow=false
+                  this.regetList()
+                }
+              })
+            }else if (this.addOrEditPoint==1){
+              this.form1.id=this.curId
+              this.$fetchPost("material/update",this.form1,"json").then(res => {
+                this.$message({
+                  message: res.message,
+                  type: 'success'
+                });
+                if (res.result==1){
+                  this.dialogVisibleAddOrEditShow=false
+                  this.regetList()
+                }
+              })
+            } 
+            
+          }else{
+              // log.error('根据地址查询位置失败');
+          }
+      });
+    },
     submitForm1(){
       console.log(this.imgList)
       if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address==''||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
       } else {
-
-        this.form1.type=this.type
-        this.form1.materialDetails=this.materialDetails
-        this.form1.contectTelList=this.contectTelList
-        this.form1.source=this.source
-        console.log(this.form1)
-        
-        if (this.addOrEditPoint==0){
-          this.$fetchPost("material/insert",this.form1,"json").then(res => {
-            this.$message({
-              message: res.message,
-              type: 'success'
-            });
-            if (res.result==1){
-              this.dialogVisibleAddOrEditShow=false
-              this.regetList()
-            }
-          })
-        }else if (this.addOrEditPoint==1){
-          this.form1.id=this.curId
-          this.$fetchPost("material/update",this.form1,"json").then(res => {
-            this.$message({
-              message: res.message,
-              type: 'success'
-            });
-            if (res.result==1){
-              this.dialogVisibleAddOrEditShow=false
-              this.regetList()
-            }
-          })
-        } 
+        this.addresschange(this.form1.province+this.form1.city+this.form1.address)
       }
     },
     clickPublish(row){

@@ -104,10 +104,9 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="上传附件" prop="links" ref="imageUpload">
-            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form.imgList"  :limit="1" v-model="form.links">
+            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :on-exceed="changeExceed" :file-list="form.imgList"  :limit="1" v-model="form.links">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
-            <div style="padding:10px;">上传文件前，若覆盖文件，请先删除后在上传</div>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm('form')">提交</el-button>
@@ -208,6 +207,7 @@ export default {
   },
   methods: {
 	  uploadImgSuccess(response, file, fileList) {
+      console.log(response)
      // 缓存接口调用所需的文件路径
       this.$refs.imageUpload.clearValidate();
       this.form.imgList=fileList
@@ -215,7 +215,7 @@ export default {
         message: "上传成功",
         type: 'success'
       });
-	  },
+    },
 	  handleRemove(file, fileList) {
      // 更新缓存文件
      this.form.imgList=fileList
@@ -239,7 +239,11 @@ export default {
         this.$fetchPostFile("file/upload",data).then(res => {
 	       file.onSuccess(res)
           this.form.links=res
+        }).catch(res => {
         })
+    },
+    changeExceed(files, fileList){
+      this.$message.error("当前限制只可上传1个文件，重传文件前，请先删除旧文件")
     },
     add(){
       this.addOrEditPoint=0

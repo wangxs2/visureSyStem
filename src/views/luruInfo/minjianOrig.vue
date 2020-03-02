@@ -81,7 +81,7 @@
               <div v-else-if="scope.row.hasShow==1">已发布</div>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="查看" fixed="right" width="150">
+          <el-table-column prop="name" label="查看" fixed="right" width="200">
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看提供的服务或物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
