@@ -336,6 +336,7 @@ export default {
       type:4, // 类型
       status:[], // 物资对接情况
       imgList:[] , //图片列表
+      curImgList:[],
       form1:{
         name:'', // 机构名称
         provinceAndCity:'', // 省市
@@ -469,9 +470,18 @@ export default {
     },
 	  uploadImgSuccess(response, file, fileList) {
      // 缓存接口调用所需的文件路径
-     console.log(file,fileList)
       this.imgList=fileList
-     console.log(this.imgList)
+      if (this.imgList&&this.imgList.length>0){
+        this.imgList.forEach(item => {
+          this.curImgList.push(item.response)
+        })
+        this.form1.picUrl=this.curImgList.join(",")
+      } else {
+          this.curImgList=[]
+        this.form1.picUrl=""
+
+      }
+     console.log(this.imgList,"上传")
       this.$message({
         message: "上传成功",
         type: 'success'
@@ -479,9 +489,17 @@ export default {
 	  },
 	  handleRemove(file, fileList) {
      // 更新缓存文件
-     console.log(file,fileList)
-     this.imgList=fileList
-     console.log(this.imgList)
+      this.imgList=fileList
+      if (this.imgList&&this.imgList.length>0){
+        this.imgList.forEach(item => {
+          this.curImgList.push(item.response)
+        })
+        this.form1.picUrl=this.curImgList.join(",")
+      } else {
+          this.curImgList=[]
+          this.form1.picUrl=""
+      }
+     console.log(this.imgList,"删除")
       this.$message({
         message: "删除成功",
         type: 'success'
@@ -492,7 +510,7 @@ export default {
       data.append("uploadFile",file.file);  //图片
       this.$fetchPostFile("file/upload",data).then(res => {
         file.onSuccess(res)
-        console.log(this.curImgList)
+        // console.log(this.curImgList)
       })
     },
     handleChange(value){
@@ -519,51 +537,41 @@ export default {
       }
     },
     submitForm1(){
-      console.log(this.form1.imgList)
-      this.form1.type=this.type
-      this.form1.materialDetails=this.materialDetails
-      this.form1.contectTelList=this.contectTelList
-      this.form1.source=this.source
-
-      this.form1.picUrl=this.curImgList.join(",")
-      console.log(this.form1)
-
 
       if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
       } else {
 
         this.form1.type=this.type
-        this.form1.status=this.status.join(",")
         this.form1.materialDetails=this.materialDetails
         this.form1.contectTelList=this.contectTelList
         this.form1.source=this.source
         console.log(this.form1)
 
-        // if (this.addOrEditPoint==0){
-        //   this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
-        //     this.$message({
-        //       message: res.message,
-        //       type: 'success'
-        //     });
-        //     if (res.result==1){
-        //       this.dialogVisibleAddOrEditShow=false
-        //       this.regetList()
-        //     }
-        //   })
-        // }else if (this.addOrEditPoint==1){
-        //   this.form.id=this.curId
-        //   this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
-        //     this.$message({
-        //       message: res.message,
-        //       type: 'success'
-        //     });
-        //     if (res.result==1){
-        //       this.dialogVisibleAddOrEditShow=false
-        //       this.regetList()
-        //     }
-        //   })
-        // } 
+        if (this.addOrEditPoint==0){
+          this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
+            this.$message({
+              message: res.message,
+              type: 'success'
+            });
+            if (res.result==1){
+              this.dialogVisibleAddOrEditShow=false
+              this.regetList()
+            }
+          })
+        }else if (this.addOrEditPoint==1){
+          this.form.id=this.curId
+          this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
+            this.$message({
+              message: res.message,
+              type: 'success'
+            });
+            if (res.result==1){
+              this.dialogVisibleAddOrEditShow=false
+              this.regetList()
+            }
+          })
+        } 
       }
     },
     clickPublish(row){
