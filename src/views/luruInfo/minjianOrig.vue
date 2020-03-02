@@ -20,7 +20,7 @@
           <span>物品名称:</span>
           <el-autocomplete v-model="goodsName" :fetch-suggestions="querySearchAsync" placeholder="请选择物品名称" @select="handleSelect" clearable></el-autocomplete>
         </div>
-        <div class="search-input">
+        <!-- <div class="search-input">
           <span>接受捐赠/采购情况:</span>
           <el-select v-model="acceptInfo" placeholder="请选择" clearable>
             <el-option
@@ -30,7 +30,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-        </div>
+        </div> -->
         <div class="search-input search-btn" @click="search">搜索</div>
 
       </div>
@@ -118,6 +118,14 @@
         </el-table-column> -->
       </el-table>
     </el-dialog>
+    <!-- 删除 -->
+    <el-dialog title="提示" :visible.sync="dialogVisibleDeleteShow" width="25%" center>
+      <div style="text-align:center;"><span>确定要删除吗？</span></div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleDeleteShow = false">取 消</el-button>
+        <el-button type="primary" @click="delectCom">确 定</el-button>
+      </span>
+    </el-dialog>
     <!-- 审核弹框 -->
     <el-dialog title="审核" :visible.sync="dialogPublishShow" :close-on-click-modal="false" width="480" center custom-class="look-goods">
         <el-form label-position="right" :model="form">
@@ -194,6 +202,8 @@ export default {
         checkStatus:1, // 是否置顶
         checkDesc:'', // 网页链接
       },
+
+      dialogVisibleDeleteShow:false,
     }
   },
   mounted () {
@@ -245,15 +255,21 @@ export default {
       })
     },
     deleteRow(row){
-      this.$fetchPost("material/shield",{id:row.id}).then(res => {
+      this.curId=row.id
+      this.dialogVisibleDeleteShow=true
+    },
+    delectCom(){
+      this.$fetchPost("material/shield",{id:this.curId}).then(res => {
         this.$message({
           message: res.message,
           type: 'success'
         });
         if (res.result==1){
+          this.dialogVisibleDeleteShow=false
           this.regetList()
         }
       })
+
     },
     getNeedsNameList(){
       this.$fetchGet("material/getNeedsName",{
@@ -290,7 +306,7 @@ export default {
       this.params={
         materialType:3,
         needName:this.goodsName,
-        status:this.acceptInfo,
+        // status:this.acceptInfo,
         page:this.page,
         pageSize:this.pageSize
       }

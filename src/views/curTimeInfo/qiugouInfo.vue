@@ -49,8 +49,9 @@
           </el-table-column>
           <el-table-column prop="status" label="状态">
             <template slot-scope="scope">
-              <div style="padding:5px;" v-if="scope.row.status==0">等待资助</div>
-              <div style="padding:5px;" v-if="scope.row.status==1">资助完成</div>
+              <div style="padding:5px;" v-if="scope.row.status==0">未核实</div>
+              <div style="padding:5px;" v-if="scope.row.status==1">已核实</div>
+              <div style="padding:5px;" v-if="scope.row.status==2">已完成</div>
             </template>
           </el-table-column>
           <el-table-column prop="links" label="链接">
@@ -105,11 +106,20 @@
             <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form.imgList"  :limit="1" v-model="form.links">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
+            <div style="padding:10px;">上传文件前，若覆盖文件，请先删除后在上传</div>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm('form')">提交</el-button>
           </el-form-item>
         </el-form>
+      </el-dialog>
+      <!-- 删除 -->
+      <el-dialog title="提示" :visible.sync="dialogVisibleDeleteShow" width="25%" center>
+        <div style="text-align:center;"><span>确定要删除吗？</span></div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisibleDeleteShow = false">取 消</el-button>
+          <el-button type="primary" @click="delectCom">确 定</el-button>
+        </span>
       </el-dialog>
     </div>
   </div>
@@ -181,6 +191,8 @@ export default {
           { required: true, message: '请选择是否置顶', trigger: 'change' },
         ],
       },
+
+      dialogVisibleDeleteShow:false,
     }
   },
   mounted () {
@@ -260,15 +272,21 @@ export default {
       }
     },
     deleteRow(row){
-      this.$fetchPost("purchaseDemand/delete",{id:row.id}).then(res => {
+      this.curId=row.id
+      this.dialogVisibleDeleteShow=true
+    },
+    delectCom(){
+      this.$fetchPost("purchaseDemand/delete",{id:this.curId}).then(res => {
         this.$message({
           message: res.message,
           type: 'success'
         });
         if (res.result==1){
+          this.dialogVisibleDeleteShow=false
           this.regetList()
         }
       })
+
     },
     submitForm(form){
       this.$refs[form].validate((valid) => {

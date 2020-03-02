@@ -131,6 +131,14 @@
         </el-table-column> -->
       </el-table>
     </el-dialog>
+    <!-- 删除 -->
+    <el-dialog title="提示" :visible.sync="dialogVisibleDeleteShow" width="25%" center>
+      <div style="text-align:center;"><span>确定要删除吗？</span></div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleDeleteShow = false">取 消</el-button>
+        <el-button type="primary" @click="delectCom">确 定</el-button>
+      </span>
+    </el-dialog>
     <!-- 审核弹框 -->
     <el-dialog title="审核" :visible.sync="dialogPublishShow" :close-on-click-modal="false" width="480" center custom-class="look-goods">
         <el-form label-position="right" :model="form">
@@ -214,7 +222,9 @@ export default {
         checkStatus: [
           { required: false, message: '请选择是否置顶', trigger: 'change' },
         ],
-      }
+      },
+
+      dialogVisibleDeleteShow:false,
     }
   },
   mounted () {
@@ -266,15 +276,22 @@ export default {
       })
     },
     deleteRow(row){
-      this.$fetchPost("material/shield",{id:row.id}).then(res => {
+      this.curId=row.id
+      this.dialogVisibleDeleteShow=true
+    },
+    delectCom(){
+
+      this.$fetchPost("material/shield",{id:this.curId}).then(res => {
         this.$message({
           message: res.message,
           type: 'success'
         });
         if (res.result==1){
+          this.dialogVisibleDeleteShow=false
           this.regetList()
         }
       })
+
     },
     getNeedsNameList(){
       this.$fetchGet("material/getNeedsName",{

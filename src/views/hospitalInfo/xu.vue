@@ -57,6 +57,14 @@
         </div>
       </div>
     </div>
+    <!-- 删除 -->
+    <el-dialog title="提示" :visible.sync="dialogVisibleDeleteShow" width="25%" center>
+      <div style="text-align:center;"><span>确定要删除吗？</span></div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleDeleteShow = false">取 消</el-button>
+        <el-button type="primary" @click="delectCom">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -79,6 +87,8 @@ export default {
       total:0,
       params:{},
       pageshow:true,
+
+      dialogVisibleDeleteShow:false,
     }
   },
   mounted () {
@@ -95,15 +105,21 @@ export default {
   },
   methods: {
     deleteRow(row){
-      this.$fetchPost("hospital/shield",{id:row.id}).then(res => {
+      this.curId=row.id
+      this.dialogVisibleDeleteShow=true
+    },
+    delectCom(){
+      this.$fetchPost("hospital/shield",{id:this.curId}).then(res => {
         this.$message({
           message: res.message,
           type: 'success'
         });
         if (res.result==1){
+          this.dialogVisibleDeleteShow=false
           this.regetList()
         }
       })
+
     },
     // 操作完成获取数据
     regetList(){

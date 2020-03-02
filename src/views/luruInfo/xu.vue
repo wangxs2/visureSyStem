@@ -53,10 +53,14 @@
           <el-table-column prop="status" label="物资对接情况">
             <template slot-scope="scope">
               <div v-if="scope.row.status==1">接受个人捐赠</div>
-              <div v-else-if="scope.row.status==2">接受企业捐赠</div>
-              <div v-else-if="scope.row.status==3">接受采购</div>
-              <div v-else-if="scope.row.status==4">捐赠</div>
-              <div v-else-if="scope.row.status==5">采购</div>
+              <div v-if="scope.row.status==2">接受企业捐赠</div>
+              <div v-if="scope.row.status==3">接受采购</div>
+              <div v-if="scope.row.status=='1,2'">接受个人捐赠,接受企业捐赠</div>
+              <div v-if="scope.row.status=='1,3'">接受个人捐赠,接受采购</div>
+              <div v-if="scope.row.status=='2,3'">接受企业捐赠,接受采购</div>
+              <div v-if="scope.row.status=='1,2,3'">接受个人捐赠,接受企业捐赠,接受采购</div>
+              <!-- <div v-if="scope.row.status==4">捐赠</div>
+              <div v-if="scope.row.status==5">采购</div> -->
             </template>
           </el-table-column>
           <el-table-column prop="createTime" label="需求发布时间"></el-table-column>
@@ -134,6 +138,14 @@
 
         </el-table-column> -->
       </el-table>
+    </el-dialog>
+    <!-- 删除 -->
+    <el-dialog title="提示" :visible.sync="dialogVisibleDeleteShow" width="25%" center>
+      <div style="text-align:center;"><span>确定要删除吗？</span></div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleDeleteShow = false">取 消</el-button>
+        <el-button type="primary" @click="delectCom">确 定</el-button>
+      </span>
     </el-dialog>
     <!-- 审核弹框 -->
     <el-dialog title="审核" :visible.sync="dialogPublishShow" :close-on-click-modal="false" width="480" center custom-class="look-goods">
@@ -314,6 +326,7 @@ export default {
         checkDesc:'', // 网页链接
       },
 
+      dialogVisibleDeleteShow:false,
       dialogVisibleAddOrEditShow:false,
       addOrEditPoint:0,
       options:json,
@@ -529,16 +542,38 @@ export default {
       this.dialogVisibleAddOrEditShow=true
       this.curId=row.id
       this.form1={
-        title:row.title,
-        updateTime:row.updateTime,
-        body:row.body,
-        links:row.links,
-        status:row.status,
-        imgList: [{url: row.links, status: 'finished'}]
+        materialType:1,
+        name:row.name, // 机构名称
+        provinceAndCity:'', // 省市
+        province:row.province, // 省
+        city:row.city, // 市
+        address:row.address, // 详细地址
+        type:'', // 类型
+        status:'', // 物资对接情况
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:row.createTime, // 发布时间
+        source:'', // 需求来源 
+        descr:row.descr, // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
       }
+
+      
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.source=row.source // 需求来源 
+      this.type=row.type// 类型
+      this.status=row.status.split(",") // 物资对接情况
+      
+      this.materialDetails=row.materialDetails,//需求表
+      this.contectTelList=row.contectTelList,
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
     },
     submitForm1(){
-
+      console.log(this.imgList)
       if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address==''||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
       } else {
@@ -640,15 +675,21 @@ export default {
 
     },
     deleteRow(row){
-      this.$fetchPost("material/shield",{id:row.id}).then(res => {
+      this.curId=row.id
+      this.dialogVisibleDeleteShow=true
+    },
+    delectCom(){
+      this.$fetchPost("material/shield",{id:this.curId}).then(res => {
         this.$message({
           message: res.message,
           type: 'success'
         });
         if (res.result==1){
+          this.dialogVisibleDeleteShow=false
           this.regetList()
         }
       })
+
     },
     getNeedsNameList(){
       this.$fetchGet("material/getNeedsName",{
