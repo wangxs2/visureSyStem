@@ -187,8 +187,13 @@
                 <div class="num">需求数量</div>
               </div>
               <div class="comfirm-need-body" v-for="(iteam,index) in materialDetails" :key="index">
-                <div class="name">
-                  <el-input v-model="iteam.needsName" placeholder="请输入需求名称"    size="samll"></el-input>
+                <div class="name" v-if="curNeedName">
+                  <el-select v-model="iteam.needsName" placeholder="请选择" @change="changeNeedName">
+                    <el-option v-for="item in needList" :key="item" :label="item" :value="item"></el-option>
+                  </el-select>
+                </div>
+                <div class="name" v-else>
+                  <el-input v-model="iteam.needsName" placeholder="请输入需求名称" size="samll"></el-input>
                 </div>
                 <div class="num">
                   <el-input v-model="iteam.needsNum" placeholder="请输入需求数量" size="samll"></el-input>
@@ -326,6 +331,7 @@ export default {
       ],//需求表
       telindex:0,
       testindex:0,
+      curNeedName:1,
       source:1, // 需求来源 
       type:4, // 类型
       status:[], // 物资对接情况
@@ -419,6 +425,16 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    changeNeedName(value){
+      console.log(value)
+      if (value=="其他"){
+        this.curNeedName=0
+        value=''
+      } else {
+        this.curNeedName=1
+
+      }
+    },
     addTel(){
       this.telindex++
       this.contectTelList.push({

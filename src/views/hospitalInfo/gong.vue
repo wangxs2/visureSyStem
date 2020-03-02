@@ -17,7 +17,7 @@
           </el-date-picker>
         </div>
         <div class="search-input">
-          <span>物品名称:</span>
+          <span>内容:</span>
           <el-input v-model="content" placeholder="请输入查询内容"></el-input>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
@@ -32,8 +32,14 @@
           </el-table-column>
           <el-table-column prop="gaodeLon" label="经度"></el-table-column>
           <el-table-column prop="gaodeLat" label="纬度"></el-table-column>
-          <el-table-column prop="createTime" label="发布时间"></el-table-column>
-          <el-table-column prop="needsName " label="物资类别" width="120" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="createTime" label="物资提供时间"></el-table-column>
+          <el-table-column prop="linkPeople" label="联系人">
+            <template slot-scope="scope">
+              <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="needsName" label="物资清单" width="120" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="descr" label="备注"></el-table-column>
           <el-table-column prop="name" label="操作" fixed="right" width="120">
             <template slot-scope="scope">
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
@@ -61,7 +67,7 @@
 <script>
 import {screenHeight,formatDate} from "../../utils/util"
 export default {
-  name: 'gong',
+  name: 'gong1',
   components: {
   },
   data () {
@@ -92,7 +98,15 @@ export default {
   },
   methods: {
     deleteRow(row){
-      
+      this.$fetchPost("hospital/shield",{id:row.id}).then(res => {
+        this.$message({
+          message: res.message,
+          type: 'success'
+        });
+        if (res.result==1){
+          this.regetList()
+        }
+      })
     },
     // 操作完成获取数据
     regetList(){
@@ -131,6 +145,20 @@ export default {
       this.$fetchGet("hospital/getHospital",params).then(res => {
           this.total=res.data.total
           this.tableData=res.data.list
+          if (this.tableData&&this.tableData.length>0){
+            this.tableData.forEach(item => {
+              if (item.linkPeople){
+                item.linkPeople=item.linkPeople.replace(/:/g, "-")
+                item.linkPeopleList=item.linkPeople.split(',')
+                item.linkPeopleList.forEach(items => {
+                  // items=items.split(":").join("-")
+                  // console.log(items)
+
+                })
+                item.linkPeopleList=item.linkPeopleList
+              }
+            })
+          }
       })
     },
     handleSizeChange(val) {
@@ -157,6 +185,9 @@ export default {
 <style lang="scss">
 @import '../../assets/css/common.scss';
 .gong{
+  .el-input{
+    width:200px;
+  }
   
 }
 

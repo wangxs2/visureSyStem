@@ -49,7 +49,6 @@
           <el-table-column prop="province" label="省"></el-table-column>
           <el-table-column prop="city" label="市"></el-table-column>
           <el-table-column prop="address" label="详细地址"></el-table-column>
-          <el-table-column prop="descr" label="备注"></el-table-column>
           <el-table-column prop="serviceRange" label="服务覆盖范围"></el-table-column>
           <el-table-column prop="startTime" label="服务起始时间"></el-table-column>
           <el-table-column prop="endTime" label="服务结束时间"></el-table-column>
@@ -66,6 +65,7 @@
             </template>
 
           </el-table-column>
+          <el-table-column prop="descr" label="备注"></el-table-column>
           <el-table-column prop="detail" label="物资详情"></el-table-column>
           <el-table-column prop="isValid" label="审核状态">
             <template slot-scope="scope">

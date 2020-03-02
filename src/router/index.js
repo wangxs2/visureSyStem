@@ -48,21 +48,21 @@ export default new Router({
                     children:[
                         {
                             path: '/hospitalInfo/xu',
-                            name: 'xu',
+                            name: 'xu1',
                             component: xu1,
                             curMenuName:"发布信息维护/需方"
 
                         },
                         {
                             path: '/hospitalInfo/gong',
-                            name: 'gong',
+                            name: 'gong1',
                             component: gong1,
                             curMenuName:"发布信息维护/供方"
 
                         },
                         {
                             path: '/hospitalInfo/minjianOrig',
-                            name: 'minjianOrig',
+                            name: 'minjianOrig1',
                             component: minjianOrig1,
                             curMenuName:"发布信息维护/民间组织"
 

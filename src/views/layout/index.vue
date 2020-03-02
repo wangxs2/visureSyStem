@@ -161,7 +161,7 @@ export default {
     background:#4F84FD!important;
 }
 .el-menu-item-group__title{
-    padding:0;
+    padding:0!important;
 }
 .layout{
     .layout-top{
