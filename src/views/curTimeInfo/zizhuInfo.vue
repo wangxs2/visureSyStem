@@ -104,7 +104,8 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="上传附件" prop="links" ref="imageUpload">
-            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :on-exceed="changeExceed" :file-list="form.imgList"  :limit="1" v-model="form.links">
+            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" 
+            :on-error="uploadImgError" :on-exceed="changeExceed" :file-list="form.imgList"  :limit="1" v-model="form.links">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-form-item>
@@ -223,7 +224,14 @@ export default {
         message: "删除成功",
         type: 'success'
       });
-	  },
+    },
+    uploadImgError(err,file,fileList){
+      if (err.result&&err.result==-1){
+        this.$message.error(err.message)
+      } else {
+        this.$message.error("上传失败")
+      }
+    },
     handleHttpUpolad(file){
       // let zip=new jsZip()
       // zip.file(file.file.name,file.file)
@@ -234,13 +242,33 @@ export default {
       //     level:8
       //   },
       // }).then(content => {
-        let data = new FormData();
-        data.append("uploadFile",file.file);  //图片
-        this.$fetchPostFile("file/upload",data).then(res => {
-	       file.onSuccess(res)
-          this.form.links=res
-        }).catch(res => {
-        })
+        // lrz(file, {
+        //   quality: 0.2    //自定义使用压缩方式
+        // })  
+        // .then(rst=> {
+        //   console.log(rst)
+        console.log(file)
+          let data = new FormData();
+          data.append("uploadFile",file.file);  //图片
+          this.$fetchPostFile("file/upload",data).then(res => {
+            if (res.result&&res.result==-1){
+              file.onError(res)
+            } else {
+              file.onSuccess(res)
+              this.form.links=res
+            }
+          }).catch(err => {
+            file.onError(err)
+            // this.$message.error("上传失败")
+          })
+
+              
+        // }).catch(error=> {
+        //     //失败时执行
+        // }).always(()=> {
+      
+        //     //不管成功或失败，都会执行
+        // })
     },
     changeExceed(files, fileList){
       this.$message.error("当前限制只可上传1个文件，重传文件前，请先删除旧文件")

@@ -134,7 +134,7 @@
               <el-radio v-for="item in statusList" :key="item.type" :label="item.type">{{item.name}}</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="物资表述">
+          <el-form-item label="审核意见">
             <el-input v-model="form.checkDesc" type="textarea" :rows="5" placeholder="请输入描述内容"></el-input>
           </el-form-item>
           <el-form-item>
@@ -223,6 +223,10 @@ export default {
     clickPublish(row){
       this.dialogPublishShow=true
       this.curId=row.id
+      this.form={
+        checkStatus:row.isValid, // 是否置顶
+        checkDesc:row.checkDesc, // 网页链接
+      }
 
     },
     submitForm(form){

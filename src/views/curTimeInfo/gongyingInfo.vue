@@ -104,7 +104,8 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="上传附件" prop="links" ref="imageUpload">
-            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :on-exceed="changeExceed" :file-list="form.imgList"  :limit="1" v-model="form.links">
+            <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" 
+            :on-error="uploadImgError" :on-exceed="changeExceed" :file-list="form.imgList"  :limit="1" v-model="form.links">
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-form-item>
@@ -225,6 +226,13 @@ export default {
         type: 'success'
       });
 	  },
+    uploadImgError(err,file,fileList){
+      if (err.result&&err.result==-1){
+        this.$message.error(err.message)
+      } else {
+        this.$message.error("上传失败")
+      }
+    },
     handleHttpUpolad(file){
       // let zip=new jsZip()
       // zip.file(file.file.name,file.file)
@@ -240,9 +248,16 @@ export default {
           let data = new FormData();
           data.append("uploadFile",file.file);  //图片
           this.$fetchPostFile("file/upload",data).then(res => {
-            file.onSuccess(res)
-            this.form.links=res
-          }).catch(res => {
+            
+            if (res.result&&res.result==-1){
+              file.onError(res)
+            } else {
+              file.onSuccess(res)
+              this.form.links=res
+            }
+          }).catch(err => {
+            file.onError(err)
+            // this.$message.error("上传失败")
           })
 
         // } else {
