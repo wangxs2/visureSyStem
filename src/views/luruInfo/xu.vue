@@ -18,11 +18,11 @@
         </div>
         <div class="search-input">
           <span>物品名称:</span>
-          <el-autocomplete v-model="goodsName" :fetch-suggestions="querySearchAsync" placeholder="请选择物品名称" @select="handleSelect"></el-autocomplete>
+          <el-autocomplete v-model="goodsName" :fetch-suggestions="querySearchAsync" placeholder="请选择物品名称" @select="handleSelect" clearable></el-autocomplete>
         </div>
         <div class="search-input">
           <span>接受捐赠/采购情况:</span>
-          <el-select v-model="acceptInfo" placeholder="请选择">
+          <el-select v-model="acceptInfo" placeholder="请选择" clearable>
             <el-option
               v-for="item in acceptInfoList"
               :key="item.value"
@@ -174,7 +174,7 @@
         </div>
         <div class="input-wrapper">
           <div class="label-title"><span class="font-red">*</span>物资对接情况</div>
-          <el-checkbox-group v-model="status">
+          <el-checkbox-group v-model="status" @change="changeStatus">
             <el-checkbox v-for="item in luruSupRadio" :key="item.type" :label="item.type">{{item.name}}</el-checkbox>
           </el-checkbox-group>
         </div>
@@ -242,11 +242,11 @@
         </div>
         <div class="input-wrapper">
           <div class="label-title">其他说明</div>
-          <el-input v-model="form1.needsDescr" type="textarea" :rows="5" placeholder="请输入其他说明"></el-input>
+          <el-input v-model="form1.descr" type="textarea" :rows="5" placeholder="请输入其他说明"></el-input>
         </div>
         <div class="input-wrapper">
           <div class="label-title"><span class="font-red">*</span>上传附件</div>
-          <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form1.imgList"  :limit="5" v-model="form1.picUrl">
+          <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="imgList"  :limit="5" >
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </div>
@@ -335,28 +335,20 @@ export default {
       source:1, // 需求来源 
       type:4, // 类型
       status:[], // 物资对接情况
+      imgList:[] , //图片列表
       form1:{
         name:'', // 机构名称
         provinceAndCity:'', // 省市
         province:'', // 省
         city:'', // 市
         address:'', // 详细地址
-        type:4, // 类型
-        status:[], // 物资对接情况
-        materialDetails:[
-          {
-            needsName:'',
-            needsNum:'',
-          }
-        ],//需求表
-        contectTelList:[
-          {
-            name:'',
-            tel:'',
-          }
-        ],
+        type:'', // 类型
+        status:'', // 物资对接情况
+        materialDetails:[],//需求表
+        contectTelList:[],
         createTime:'', // 发布时间
-        source:1, // 需求来源 
+        source:'', // 需求来源 
+        descr:'', // 其他说明
         picUrl:'', // 图片地址
         imgList:[] , //图片列表
       },
@@ -425,14 +417,16 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    changeStatus(value){
+        this.form1.status=value.join(",")
+    },
     changeNeedName(value){
       console.log(value)
       if (value=="其他"){
         this.curNeedName=0
-        value=''
+        this.materialDetails[this.testindex].needsName=''
       } else {
         this.curNeedName=1
-
       }
     },
     addTel(){
@@ -448,11 +442,12 @@ export default {
     },
     //添加需求表
     addDemand(){
+      this.curNeedName=1
       let x=this.materialDetails.some(item =>{
           return item.needsName == ""
       })
       if(x||this.materialDetails[this.testindex].needsName==''){
-        this.$message.error( "请完善信息(至少输入物资名称");
+        this.$message.error( "请完善信息(至少输入物资名称)");
       }else{
         this.testindex++
         this.materialDetails.push({
@@ -474,8 +469,9 @@ export default {
     },
 	  uploadImgSuccess(response, file, fileList) {
      // 缓存接口调用所需的文件路径
-      this.$refs.imageUpload.clearValidate();
-      this.form.imgList=fileList
+     console.log(file,fileList)
+      this.imgList=fileList
+     console.log(this.imgList)
       this.$message({
         message: "上传成功",
         type: 'success'
@@ -483,7 +479,9 @@ export default {
 	  },
 	  handleRemove(file, fileList) {
      // 更新缓存文件
-     this.form.imgList=fileList
+     console.log(file,fileList)
+     this.imgList=fileList
+     console.log(this.imgList)
       this.$message({
         message: "删除成功",
         type: 'success'
@@ -494,7 +492,7 @@ export default {
       data.append("uploadFile",file.file);  //图片
       this.$fetchPostFile("file/upload",data).then(res => {
         file.onSuccess(res)
-        this.form.links=res
+        console.log(this.curImgList)
       })
     },
     handleChange(value){
@@ -505,12 +503,6 @@ export default {
       this.addOrEditPoint=0
       this.dialogVisibleAddOrEditShow=true
       this.form1={
-        title:'',
-        updateTime:'',
-        body:'',
-        links:'',
-        status:1,
-        imgList:[]
       }
     },
     editRow(row){
@@ -527,34 +519,51 @@ export default {
       }
     },
     submitForm1(){
-      if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.form1.imgList.length==0){
+      console.log(this.form1.imgList)
+      this.form1.type=this.type
+      this.form1.materialDetails=this.materialDetails
+      this.form1.contectTelList=this.contectTelList
+      this.form1.source=this.source
+
+      this.form1.picUrl=this.curImgList.join(",")
+      console.log(this.form1)
+
+
+      if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
       } else {
 
-        if (this.addOrEditPoint==0){
-          this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
-            this.$message({
-              message: res.message,
-              type: 'success'
-            });
-            if (res.result==1){
-              this.dialogVisibleAddOrEditShow=false
-              this.regetList()
-            }
-          })
-        }else if (this.addOrEditPoint==1){
-          this.form.id=this.curId
-          this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
-            this.$message({
-              message: res.message,
-              type: 'success'
-            });
-            if (res.result==1){
-              this.dialogVisibleAddOrEditShow=false
-              this.regetList()
-            }
-          })
-        } 
+        this.form1.type=this.type
+        this.form1.status=this.status.join(",")
+        this.form1.materialDetails=this.materialDetails
+        this.form1.contectTelList=this.contectTelList
+        this.form1.source=this.source
+        console.log(this.form1)
+
+        // if (this.addOrEditPoint==0){
+        //   this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
+        //     this.$message({
+        //       message: res.message,
+        //       type: 'success'
+        //     });
+        //     if (res.result==1){
+        //       this.dialogVisibleAddOrEditShow=false
+        //       this.regetList()
+        //     }
+        //   })
+        // }else if (this.addOrEditPoint==1){
+        //   this.form.id=this.curId
+        //   this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
+        //     this.$message({
+        //       message: res.message,
+        //       type: 'success'
+        //     });
+        //     if (res.result==1){
+        //       this.dialogVisibleAddOrEditShow=false
+        //       this.regetList()
+        //     }
+        //   })
+        // } 
       }
     },
     clickPublish(row){
@@ -634,13 +643,20 @@ export default {
       this.tableData=[]
       this.params={
         materialType:1,
-        startDate:this.startEndTate[0],
-        endDate:this.startEndTate[1],
         needName:this.goodsName,
         status:this.acceptInfo,
         page:this.page,
         pageSize:this.pageSize
       }
+      if (this.startEndTate&&this.startEndTate.length>0){
+        this.params.startDate=this.startEndTate[0]
+        this.params.endDate=this.startEndTate[1]
+      } else {
+        this.params.startDate=''
+        this.params.endDate=''
+
+      }
+      
       this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true

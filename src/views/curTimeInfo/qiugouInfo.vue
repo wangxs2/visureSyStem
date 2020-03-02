@@ -7,7 +7,7 @@
       <div class="search-wrapper">
         <div class="search-input">
           <span>标题:</span>
-          <el-autocomplete v-model="title" :fetch-suggestions="querySearchAsync" placeholder="请选择标题名称" @select="handleSelect"></el-autocomplete>
+          <el-autocomplete v-model="title" :fetch-suggestions="querySearchAsync" placeholder="请选择标题名称" @select="handleSelect" clearable></el-autocomplete>
         </div>
         <div class="search-input">
           <span>起始时间-结束时间:</span>
@@ -22,12 +22,12 @@
         </div>
         <div class="search-input">
           <span>状态:</span>
-          <el-select v-model="status" placeholder="请选择">
+          <el-select v-model="status" placeholder="请选择" clearable>
             <el-option
               v-for="item in statusList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              :key="item.type"
+              :label="item.name"
+              :value="item.type">
             </el-option>
           </el-select>
         </div>
@@ -133,15 +133,6 @@ export default {
       status:'',
       title:'',
       titleList: [],
-      statusList: [
-        {
-          value: 0,
-          label: '等待资助'
-        }, {
-          value: 1,
-          label: '资助完成'
-        }, 
-      ],
       tableData: [],
       total:0,
       gridData: [],
@@ -355,12 +346,19 @@ export default {
       this.tableData=[]
       this.params={
         title:this.title,
-        startDate:this.startEndTate[0],
-        endDate:this.startEndTate[1],
         status:this.status,
         page:this.page,
         pageSize:this.pageSize
       }
+      if (this.startEndTate&&this.startEndTate.length>0){
+        this.params.startDate=this.startEndTate[0]
+        this.params.endDate=this.startEndTate[1]
+      } else {
+        this.params.startDate=''
+        this.params.endDate=''
+
+      }
+      
       this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true

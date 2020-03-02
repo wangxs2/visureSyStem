@@ -18,11 +18,11 @@
         </div>
         <div class="search-input">
           <span>物品名称:</span>
-          <el-autocomplete v-model="goodsName" :fetch-suggestions="querySearchAsync" placeholder="请选择物品名称" @select="handleSelect"></el-autocomplete>
+          <el-autocomplete v-model="goodsName" :fetch-suggestions="querySearchAsync" placeholder="请选择物品名称" @select="handleSelect" clearable></el-autocomplete>
         </div>
         <div class="search-input">
           <span>接受捐赠/采购情况:</span>
-          <el-select v-model="acceptInfo" placeholder="请选择">
+          <el-select v-model="acceptInfo" placeholder="请选择" clearable>
             <el-option
               v-for="item in acceptInfoList"
               :key="item.value"
@@ -310,13 +310,20 @@ export default {
       this.tableData=[]
       this.params={
         materialType:2,
-        startDate:this.startEndTate[0],
-        endDate:this.startEndTate[1],
         needName:this.goodsName,
         status:this.acceptInfo,
         page:this.page,
         pageSize:this.pageSize
       }
+      if (this.startEndTate&&this.startEndTate.length>0){
+        this.params.startDate=this.startEndTate[0]
+        this.params.endDate=this.startEndTate[1]
+      } else {
+        this.params.startDate=''
+        this.params.endDate=''
+
+      }
+      
       this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true

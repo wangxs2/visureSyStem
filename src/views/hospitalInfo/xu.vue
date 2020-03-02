@@ -18,7 +18,7 @@
         </div>
         <div class="search-input">
           <span>内容:</span>
-          <el-input v-model="content" placeholder="请输入查询内容"></el-input>
+          <el-input v-model="content" placeholder="请输入查询内容" clearable></el-input>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
 
@@ -129,12 +129,19 @@ export default {
       this.tableData=[]
       this.params={
         orgType:1,
-        startDate:this.startEndTate[0],
-        endDate:this.startEndTate[1],
         content:this.content,
         page:this.page,
         pageSize:this.pageSize
       }
+      if (this.startEndTate&&this.startEndTate.length>0){
+        this.params.startDate=this.startEndTate[0]
+        this.params.endDate=this.startEndTate[1]
+      } else {
+        this.params.startDate=''
+        this.params.endDate=''
+
+      }
+      
       this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true
