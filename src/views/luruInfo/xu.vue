@@ -32,7 +32,7 @@
           </el-select>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
-        <div class="search-input search-btn" @click="add">新增</div>
+        <!-- <div class="search-input search-btn" @click="add">新增</div> -->
 
       </div>
       <div class="table-wrapper">
@@ -88,7 +88,7 @@
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
-              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
+              <!-- <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button> -->
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
             </template>
@@ -141,82 +141,97 @@
     <el-dialog :title="addOrEditPoint==1?'编辑':'新增'" :visible.sync="dialogVisibleAddOrEditShow" :close-on-click-modal="false">
       <div class="all-input-wrapper">
         <div class="input-wrapper">
-          <div><span>*</span>名称</div>
+          <div class="label-title"><span class="font-red">*</span>名称</div>
           <el-input v-model="form1.name" placeholder="请输入名称"></el-input>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>所在地区</div>
+          <div class="label-title"><span class="font-red">*</span>所在地区</div>
           <el-cascader v-model="form1.provinceAndCity" :options="options" :props="{value:'name',label:'name',children:'city'}" @change="handleChange"></el-cascader>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>详细地址（门牌号）</div>
+          <div><span class="font-red">*</span>详细地址（门牌号）</div>
           <el-input v-model="form1.address" placeholder="请输入街道、门牌号等"></el-input>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>类型</div>
-          <el-radio-group v-model="form1.type">
+          <div class="label-title"><span class="font-red">*</span>类型</div>
+          <el-radio-group v-model="type">
             <el-radio v-for="item in luruTypeRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
           </el-radio-group>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>物资对接情况</div>
-          <el-radio-group v-model="form1.status">
+          <div class="label-title"><span class="font-red">*</span>物资对接情况</div>
+          <el-checkbox-group v-model="status">
             <el-checkbox v-for="item in luruSupRadio" :key="item.type" :label="item.type">{{item.name}}</el-checkbox>
-          </el-radio-group>
+          </el-checkbox-group>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>需求表</div>
+          <div class="label-title"><span class="font-red">*</span>需求表</div>
           <div class="comfirm-need-input-wrapper">
             <div class="comfirm-need-top">
               <div class="comfirm-need-head">
                 <div class="name">物资名称</div>
                 <div class="num">需求数量</div>
               </div>
-              <div class="comfirm-need-body" v-for="(iteam,index) in form1.materialDetails" :key="index">
+              <div class="comfirm-need-body" v-for="(iteam,index) in materialDetails" :key="index">
                 <div class="name">
                   <el-input v-model="iteam.needsName" placeholder="请输入需求名称"    size="samll"></el-input>
                 </div>
                 <div class="num">
                   <el-input v-model="iteam.needsNum" placeholder="请输入需求数量" size="samll"></el-input>
-                  <!-- <img @click="deleteDemand(index)" style="" src="../../assets/images/reduce1.png" alt=""> -->
+                  <img @click="deleteDemand(index)" style="" src="../../assets/images/reduce1.png" alt="">
                 </div>
               </div>
             </div>
-            <!-- <div class="comfirm-need-bottom" @click="addDemand"><img style="" src="../../assets/images/add1.png" alt="" >添加</div> -->
+            <div class="comfirm-need-bottom" @click="addDemand"><img style="" src="../../assets/images/add1.png" alt="" >添加</div>
           </div>
           <!-- <span class="desc need-table-desc">数量填写可便于物资调配，如不确定数量可不填写</span> -->
         </div>
-        <div>
-          <div><span>*</span>联系人-联系电话</div>
-          <el-input type="text" v-model="form1.contectTelList[0].name" placeholder="请输入街道、门牌号等"></el-input>
-          <!-- <p v-for="itam in (form1.contectTelList)">
-            <el-input v-model="itam.name" placeholder="请输入街道、门牌号等"></el-input>
-          </p> -->
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>联系人-联系电话</div>
+          <div class="comfirm-need-input-wrapper">
+            <div class="comfirm-need-top comfirm-need-top-tel">
+
+              <div class="comfirm-need-head">
+                <div class="name">联系人</div>
+                <div class="num">联系方式</div>
+              </div>
+              <div class="comfirm-need-body" v-for="(iteam,index) in contectTelList" :key="index">
+                <div class="name">
+                  <el-input class="sup-name" v-model="iteam.name" type="text" placeholder="输入联系人"></el-input>
+                </div>
+                <div class="num">
+                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)"></el-input>
+                   <!-- @blur="linkTelBlur(1,iteam.tel,index)" -->
+                  <img @click="deleteTel(index)" style="" src="../../assets/images/reduce1.png" alt="">
+                </div>
+              </div>
+            </div>
+            <div class="comfirm-need-bottom" @click="addTel"><img style="" src="../../assets/images/add1.png" alt="" >添加</div>
+          </div>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>需求发布时间</div>
+          <div class="label-title"><span class="font-red">*</span>需求发布时间</div>
           <el-date-picker v-model="form1.createTime" type="datetime" placeholder="选择发布时间" 
           value-format="yyyy-MM-dd">
           </el-date-picker>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>需求来源</div>
-          <el-radio-group v-model="form1.source">
+          <div class="label-title"><span class="font-red">*</span>需求来源</div>
+          <el-radio-group v-model="source">
             <el-radio v-for="item in luruSourceRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
           </el-radio-group>
         </div>
         <div class="input-wrapper">
-          <div>其他说明</div>
+          <div class="label-title">其他说明</div>
           <el-input v-model="form1.needsDescr" type="textarea" :rows="5" placeholder="请输入其他说明"></el-input>
         </div>
         <div class="input-wrapper">
-          <div><span>*</span>上传附件</div>
+          <div class="label-title"><span class="font-red">*</span>上传附件</div>
           <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="form1.imgList"  :limit="5" v-model="form1.picUrl">
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </div>
-          <el-button type="primary" @click="submitForm1('form1')">提交</el-button>
-
+          <el-button type="primary" @click="submitForm1()">提交</el-button>
       </div>
     </el-dialog>
   </div>
@@ -283,6 +298,23 @@ export default {
       dialogVisibleAddOrEditShow:false,
       addOrEditPoint:0,
       options:json,
+      contectTelList:[
+        {
+          name:'',
+          tel:'',
+        }
+      ],
+      materialDetails:[
+        {
+          needsName:'',
+          needsNum:'',
+        }
+      ],//需求表
+      telindex:0,
+      testindex:0,
+      source:1, // 需求来源 
+      type:4, // 类型
+      status:[], // 物资对接情况
       form1:{
         name:'', // 机构名称
         provinceAndCity:'', // 省市
@@ -364,7 +396,6 @@ export default {
 
   },
   created () {
-    console.log(this.form1.contectTelList[0].name)
     this.params={
       materialType:1,
       page:this.page,
@@ -374,37 +405,42 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
-    
+    addTel(){
+      this.telindex++
+      this.contectTelList.push({
+        name:'',
+        tel:'',
+      })
+    },
+    deleteTel(index){
+      this.contectTelList.splice(index,1)
+      this.telindex--
+    },
     //添加需求表
     addDemand(){
-      
-      // this.curNeed1=0
-      // let x=this.form1.materialDetails.some(item =>{
-      //     // return item.needsName == ""||item.needsNum == ""
-      //     return item.needsName == ""
-      // })
-      // if(x||this.form1.materialDetails[this.testindex].needsName==''){
-      //   this.$toast('请完善信息(至少输入物资名称)');
-      // }else{
-      //   this.testindex++
-      //   this.form1.materialDetails.push({
-      //     needsName:'',
-      //     needsNum:'',
-      //   })
-      // }
+      let x=this.materialDetails.some(item =>{
+          return item.needsName == ""
+      })
+      if(x||this.materialDetails[this.testindex].needsName==''){
+        this.$message.error( "请完善信息(至少输入物资名称");
+      }else{
+        this.testindex++
+        this.materialDetails.push({
+          needsName:'',
+          needsNum:'',
+        })
+      }
     },
-    
     //删除需求表
     deleteDemand(index){
-      // if(this.testindex<1){
-      //   this.form1.materialDetails[index].needsName=''
-      //   this.form1.materialDetails[index].needsNum=''
-      //   this.$toast('至少添加一条需求');
-      // }else{
-      //   this.form1.materialDetails.splice(index,1)
-      //   this.testindex--
-      // }
-      
+      if(this.testindex<1){
+        this.materialDetails[index].needsName=''
+        this.materialDetails[index].needsNum=''
+        this.$message.error( "至少添加一条需求");
+      }else{
+        this.materialDetails.splice(index,1)
+        this.testindex--
+      }
     },
 	  uploadImgSuccess(response, file, fileList) {
      // 缓存接口调用所需的文件路径
@@ -424,27 +460,16 @@ export default {
       });
 	  },
     handleHttpUpolad(file){
-      // let zip=new jsZip()
-      // zip.file(file.file.name,file.file)
-      // zip.generateAsync({
-      //   type:'blob',
-      //   compression:"DEFLATE",
-      //   compressionOption:{
-      //     level:8
-      //   },
-      // }).then(content => {
-        let data = new FormData();
-        data.append("uploadFile",file.file);  //图片
-        this.$fetchPostFile("file/upload",data).then(res => {
-	       file.onSuccess(res)
-          this.form.links=res
-        })
+      let data = new FormData();
+      data.append("uploadFile",file.file);  //图片
+      this.$fetchPostFile("file/upload",data).then(res => {
+        file.onSuccess(res)
+        this.form.links=res
+      })
     },
     handleChange(value){
-      console.log(value)
       this.form1.province=value[0]
       this.form1.city=value[1]
-
     },
     add(){
       this.addOrEditPoint=0
@@ -471,43 +496,40 @@ export default {
         imgList: [{url: row.links, status: 'finished'}]
       }
     },
-    submitForm1(form){
-      this.$refs[form].validate((valid) => {
-        if (valid) {
-          if (this.addOrEditPoint==0){
-            this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
-              this.$message({
-                message: res.message,
-                type: 'success'
-              });
-              if (res.result==1){
-                this.dialogVisibleAddOrEditShow=false
-                this.regetList()
-              }
-            })
-          }else if (this.addOrEditPoint==1){
-            this.form.id=this.curId
-            this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
-              this.$message({
-                message: res.message,
-                type: 'success'
-              });
-              if (res.result==1){
-                this.dialogVisibleAddOrEditShow=false
-                this.regetList()
-              }
-            })
-          } 
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+    submitForm1(){
+      if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.form1.imgList.length==0){
+        this.$message.error( "请输入完整信息");
+      } else {
+
+        if (this.addOrEditPoint==0){
+          this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
+            this.$message({
+              message: res.message,
+              type: 'success'
+            });
+            if (res.result==1){
+              this.dialogVisibleAddOrEditShow=false
+              this.regetList()
+            }
+          })
+        }else if (this.addOrEditPoint==1){
+          this.form.id=this.curId
+          this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
+            this.$message({
+              message: res.message,
+              type: 'success'
+            });
+            if (res.result==1){
+              this.dialogVisibleAddOrEditShow=false
+              this.regetList()
+            }
+          })
+        } 
+      }
     },
     clickPublish(row){
       this.dialogPublishShow=true
       this.curId=row.id
-
     },
     submitForm(){
       this.form.id=this.curId
@@ -646,6 +668,110 @@ export default {
 <style lang="scss">
 @import '../../assets/css/common.scss';
 .xu{
+  .input-wrapper{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    padding:10px 0;
+    .label-title{
+      display:flex;
+      justify-content: flex-start;
+      align-items: center;
+      width:200px;
+      padding-right:10px;
+    }
+    .font-red{
+      color:red;
+    }
+    
+    .comfirm-need-input-wrapper{
+      background:#fff;
+      border-radius: 5px;
+      font-size:15px;
+      font-family:PingFang SC;
+      font-weight:400;
+      color:rgba(51,51,51,1);
+      .comfirm-need-top{
+        .name{
+          display: flex;
+          justify-content: center;
+          align-items:center;
+          width: 300px;
+          border-right: 1px solid #F1F2F5;
+        }
+        .num{
+          display: flex;
+          justify-content: center;
+          align-items:center;
+          width: 200px;
+        }
+        &.comfirm-need-top-tel{
+          .name{
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            width: 300px;
+            border-right: 1px solid #F1F2F5;
+          }
+          .num{
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            width: 200px;
+          }
+
+        }
+        .comfirm-need-head{
+          display: flex;
+          justify-content: flex-start;
+          height: 40px;
+          background:#E5EAF2;
+          border-top-left-radius:5px;
+          border-top-right-radius:5px;
+          border-bottom: 1px solid #F1F2F5;
+          .name{}
+          .num{}
+        }
+        .comfirm-need-body{
+          display: flex;
+          justify-content: flex-start;
+          border-bottom: 1px solid #F1F2F5;
+          .name{
+            .sup-name{}
+          }
+          .num {
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            .sup-num,.sup-name {
+              text-align:center;
+            }
+            img{
+              width:30px;
+              height: 30px;
+              padding-right: 5px;
+            }
+          }
+          
+        }
+      }
+      .comfirm-need-bottom{
+        height: 30px;
+        display: flex;
+        justify-content:center;
+        align-items:center;
+        font-size:15px;
+        font-family:PingFang SC;
+        font-weight:500;
+        color:rgba(102,102,102,1);
+        img{
+          width: 30px;
+          height: 30px;
+          margin-right:5px;
+        }
+      }
+    }
+  }
   
 }
 

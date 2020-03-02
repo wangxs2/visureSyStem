@@ -83,7 +83,7 @@ export default {
   },
   data () {
     return {
-        defaultUrl:'/luruInfo/xu',
+        defaultUrl:'/hospitalInfo/xu',
         curMenuName:"录入信息维护/需方",
         curMenuList:[],
         userInfo:{}

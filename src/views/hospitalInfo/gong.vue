@@ -34,6 +34,11 @@
           <el-table-column prop="gaodeLat" label="纬度"></el-table-column>
           <el-table-column prop="createTime" label="发布时间"></el-table-column>
           <el-table-column prop="needsName " label="物资类别" width="120" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="name" label="操作" fixed="right" width="120">
+            <template slot-scope="scope">
+              <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <div class="block">
           <el-pagination
@@ -86,6 +91,9 @@ export default {
     this.getTableData(this.params)
   },
   methods: {
+    deleteRow(row){
+      
+    },
     // 操作完成获取数据
     regetList(){
       this.pageshow = false
