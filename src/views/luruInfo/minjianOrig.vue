@@ -37,28 +37,28 @@
       <div class="table-wrapper">
         <el-table :data="tableData.slice((page-1)*pageSize,page*pageSize)" :height="curHeight-230" style="width: 100%">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
-          <el-table-column prop="name" label="机构名称" width="140" :show-overflow-tooltip="true">
+          <el-table-column prop="name" label="机构名称">
           </el-table-column>
-          <el-table-column prop="materialType" label="类型" width="80">
+          <el-table-column prop="materialType" label="类型">
             <template slot-scope="scope">
               <span v-if="scope.row.materialType==1">需求方</span>
               <span v-if="scope.row.materialType==2">提供方</span>
               <span v-if="scope.row.materialType==3">民间组织</span>
             </template>
           </el-table-column>
-          <el-table-column prop="province" label="省" width="80"></el-table-column>
-          <el-table-column prop="city" label="市" width="80"></el-table-column>
-          <el-table-column prop="address" label="详细地址" width="140" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="descr" label="备注" width="100"></el-table-column>
-          <el-table-column prop="serviceRange" label="服务覆盖范围" width="100"></el-table-column>
-          <el-table-column prop="startTime" label="服务起始时间" width="100"></el-table-column>
-          <el-table-column prop="endTime" label="服务结束时间" width="100"></el-table-column>
-          <el-table-column prop="linkPeople" label="联系人" width="200">
+          <el-table-column prop="province" label="省"></el-table-column>
+          <el-table-column prop="city" label="市"></el-table-column>
+          <el-table-column prop="address" label="详细地址"></el-table-column>
+          <el-table-column prop="descr" label="备注"></el-table-column>
+          <el-table-column prop="serviceRange" label="服务覆盖范围"></el-table-column>
+          <el-table-column prop="startTime" label="服务起始时间"></el-table-column>
+          <el-table-column prop="endTime" label="服务结束时间"></el-table-column>
+          <el-table-column prop="linkPeople" label="联系人">
             <template slot-scope="scope">
               <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="attachment" label="图片链接" width="180" >
+          <el-table-column prop="attachment" label="图片链接">
             <template slot-scope="scope">
               <!-- <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left"> -->
                 <img v-for="(item,i) in scope.row.attachment" :key="i" :src="item" alt="" style="width:60px;height:60px;margin:2px;" >
@@ -66,12 +66,26 @@
             </template>
 
           </el-table-column>
-          <el-table-column prop="endTime" label="物资提供时间" width="120"></el-table-column>
+          <el-table-column prop="detail" label="物资详情"></el-table-column>
+          <el-table-column prop="isValid" label="审核状态">
+            <template slot-scope="scope">
+              <div v-if="scope.row.isValid==0">未审核</div>
+              <div v-else-if="scope.row.isValid==1">审核通过</div>
+              <div v-else-if="scope.row.isValid==2">审核不通过</div>
+              <div v-else-if="scope.row.isValid==3">后台录入</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop=" hasShow" label="发布状态">
+            <template slot-scope="scope">
+              <div v-if="scope.row.hasShow==0">未发布</div>
+              <div v-else-if="scope.row.hasShow==1">已发布</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="name" label="查看" fixed="right" width="150">
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看提供的服务或物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
-              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
+              <!-- <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button> -->
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
             </template>

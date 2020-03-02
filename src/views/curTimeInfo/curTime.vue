@@ -189,7 +189,7 @@ export default {
           { required: true, message: '请输入信息来源', trigger: 'blur' },
         ],
         url: [
-          { required: true, message: '请输入网页链接', trigger: 'blur' },
+          { required: false, message: '请输入网页链接', trigger: 'blur' },
         ],
         isTop: [
           { required: true, message: '请选择是否置顶', trigger: 'change' },
