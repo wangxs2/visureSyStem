@@ -252,7 +252,11 @@ export default {
         body:row.body,
         links:row.links,
         status:row.status,
-        imgList: [{url: row.links, status: 'finished'}]
+      }
+      if (row.links){
+        this.form.imgList=[{url: row.links, status: 'finished'}]
+      } else {
+        this.form.imgList=[]
       }
     },
     deleteRow(row){

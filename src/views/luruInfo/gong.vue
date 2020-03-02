@@ -78,8 +78,8 @@
             </template>
 
           </el-table-column>
-          <el-table-column prop="descr" label="备注"></el-table-column>
-          <el-table-column prop="detail" label="物资详情"></el-table-column>
+          <el-table-column prop="detail" label="物资详情" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="descr" label="备注" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="isValid" label="审核状态">
             <template slot-scope="scope">
               <div v-if="scope.row.isValid==0">未审核</div>
@@ -96,7 +96,7 @@
           </el-table-column>
           <el-table-column prop="name" label="查看" fixed="right" width="120">
             <template slot-scope="scope">
-              <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
+              <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看提供物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
               <!-- <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button> -->
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>

@@ -15,7 +15,7 @@
           <span v-if="userNameErr">请输入用户名</span>
         </div>
         <div class="login-input">
-          <el-input v-model="pwd" placeholder="请输入密码" class="searchClass"></el-input>
+          <el-input v-model="pwd" placeholder="请输入密码" type="password" class="searchClass"></el-input>
           <i class="iconfont el-icon-view"></i>
           <span v-if="pwdErr">请输入密码</span>
         </div>

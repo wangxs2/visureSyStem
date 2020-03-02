@@ -28,7 +28,7 @@
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="province" label="省" width="80"></el-table-column>
           <el-table-column prop="city" label="市" width="80"></el-table-column>
-          <el-table-column prop="hospitalName" label="机构名称" width="140" :show-overflow-tooltip="true">
+          <el-table-column prop="hospitalName" label="机构名称">
           </el-table-column>
           <el-table-column prop="gaodeLon" label="经度"></el-table-column>
           <el-table-column prop="gaodeLat" label="纬度"></el-table-column>
@@ -38,8 +38,8 @@
               <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="needsName" label="物资清单" width="120" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="descr" label="备注"></el-table-column>
+          <el-table-column prop="needsName" label="物资清单" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="descr" label="备注" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="name" label="操作" fixed="right" width="120">
             <template slot-scope="scope">
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>

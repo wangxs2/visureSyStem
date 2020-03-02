@@ -65,8 +65,8 @@
             </template>
 
           </el-table-column>
-          <el-table-column prop="descr" label="备注"></el-table-column>
-          <el-table-column prop="detail" label="物资详情"></el-table-column>
+          <el-table-column prop="detail" label="物资详情" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="descr" label="备注" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="isValid" label="审核状态">
             <template slot-scope="scope">
               <div v-if="scope.row.isValid==0">未审核</div>

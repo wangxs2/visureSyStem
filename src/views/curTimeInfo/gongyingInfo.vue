@@ -224,12 +224,19 @@ export default {
       //     level:8
       //   },
       // }).then(content => {
-        let data = new FormData();
-        data.append("uploadFile",file.file);  //图片
-        this.$fetchPostFile("file/upload",data).then(res => {
-	       file.onSuccess(res)
-          this.form.links=res
-        })
+        console.log(file)
+        // if (file.file.type.indexOf("pdf")!=-1&&file.file.type.indexOf("doc")!=-1&&file.file.type.indexOf("docx")!=-1){
+          let data = new FormData();
+          data.append("uploadFile",file.file);  //图片
+          this.$fetchPostFile("file/upload",data).then(res => {
+            file.onSuccess(res)
+            this.form.links=res
+          })
+
+        // } else {
+        //   this.$message.error("请上传pdf或者word文件")
+
+        // }
     },
     add(){
       this.addOrEditPoint=0
@@ -253,7 +260,11 @@ export default {
         body:row.body,
         links:row.links,
         status:row.status,
-        imgList: [{url: row.links, status: 'finished'}]
+      }
+      if (row.links){
+        this.form.imgList=[{url: row.links, status: 'finished'}]
+      } else {
+        this.form.imgList=[]
       }
     },
     deleteRow(row){
