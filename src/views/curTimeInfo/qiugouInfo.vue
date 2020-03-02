@@ -254,7 +254,7 @@ export default {
         status:row.status,
       }
       if (row.links){
-        this.form.imgList=[{url: row.links, status: 'finished'}]
+        this.form.imgList=[{url: row.links,name:row.links, status: 'finished'}]
       } else {
         this.form.imgList=[]
       }
@@ -420,7 +420,7 @@ export default {
     width:350px !important;
   }
   .el-upload-list{
-    width:350px;
+    // width:350px;
   }
   
 }

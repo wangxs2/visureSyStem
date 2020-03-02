@@ -338,6 +338,7 @@ export default {
       imgList:[] , //图片列表
       curImgList:[],
       form1:{
+        materialType:1,
         name:'', // 机构名称
         provinceAndCity:'', // 省市
         province:'', // 省
@@ -538,7 +539,7 @@ export default {
     },
     submitForm1(){
 
-      if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
+      if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address==''||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
       } else {
 
@@ -547,9 +548,9 @@ export default {
         this.form1.contectTelList=this.contectTelList
         this.form1.source=this.source
         console.log(this.form1)
-
+        
         if (this.addOrEditPoint==0){
-          this.$fetchPost("fundInfo/insert",this.form1,"json").then(res => {
+          this.$fetchPost("material/insert",this.form1,"json").then(res => {
             this.$message({
               message: res.message,
               type: 'success'
@@ -560,8 +561,8 @@ export default {
             }
           })
         }else if (this.addOrEditPoint==1){
-          this.form.id=this.curId
-          this.$fetchPost("fundInfo/update",this.form1,"json").then(res => {
+          this.form1.id=this.curId
+          this.$fetchPost("material/update",this.form1,"json").then(res => {
             this.$message({
               message: res.message,
               type: 'success'
@@ -605,6 +606,38 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+
+      this.form={
+        checkStatus:1, // 是否置顶
+        checkDesc:'', // 网页链接
+      },
+      this.form1={
+        materialType:1,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资对接情况
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        source:'', // 需求来源 
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.source=1 // 需求来源 
+      this.type=4 // 类型
+      this.status=[] // 物资对接情况
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
+
+
     },
     deleteRow(row){
       this.$fetchPost("material/shield",{id:row.id}).then(res => {
