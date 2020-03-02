@@ -33,11 +33,8 @@
           <el-table-column prop="gaodeLon" label="经度"></el-table-column>
           <el-table-column prop="gaodeLat" label="纬度"></el-table-column>
           <el-table-column prop="createTime" label="发布时间"></el-table-column>
-          <el-table-column prop="linkPeople" label="联系人">
-            <template slot-scope="scope">
-              <div v-for="(item,i) in scope.row.linkPeopleList" :key="i" style="padding:5px;" class="font-left">{{item}}</div>
-            </template>
-          </el-table-column>
+          <el-table-column prop="linkPeople" label="联系人"></el-table-column>
+          <el-table-column prop="linkTel" label="联系方式"></el-table-column>
           <el-table-column prop="needsName" label="物资清单" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="descr" label="备注" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="name" label="操作" fixed="right" width="120">

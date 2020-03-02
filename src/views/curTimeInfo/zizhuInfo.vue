@@ -286,6 +286,9 @@ export default {
             })
           }else if (this.addOrEditPoint==1){
             this.form.id=this.curId
+            if (this.form.imgList&&this.form.imgList.length==0){
+              this.form.links=''
+            }
             this.$fetchPost("fundInfo/update",this.form,"json").then(res => {
               this.$message({
                 message: res.message,

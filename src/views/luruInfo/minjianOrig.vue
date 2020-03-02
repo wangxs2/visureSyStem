@@ -60,7 +60,7 @@
           <el-table-column prop="attachment" label="图片链接">
             <template slot-scope="scope">
               <!-- <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left"> -->
-                <img v-for="(item,i) in scope.row.attachment" :key="i" :src="item" alt="" style="width:60px;height:60px;margin:2px;" >
+                <img v-for="(item,i) in scope.row.attachment" :key="i" :src="item" alt="" style="width:60px;height:60px;margin:2px;" @click="goUrl(item)">
               <!-- </div> -->
             </template>
 
@@ -349,7 +349,7 @@ export default {
       this.gridData=row.materialDetails
     },
     goUrl(item){
-      window.open('https://medicalsupplies.sitiits.com/'+item)
+      window.open(item)
     },
     clickLookBiao(row){
 
