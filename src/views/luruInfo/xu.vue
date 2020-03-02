@@ -104,6 +104,7 @@
               <div v-else-if="scope.row.isValid==3">后台录入</div>
             </template>
           </el-table-column>
+          <el-table-column prop="checkDescr" label="审核意见" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop=" hasShow" label="发布状态">
             <template slot-scope="scope">
               <div v-if="scope.row.hasShow==0">未发布</div>
@@ -113,7 +114,7 @@
           <el-table-column prop="name" label="查看或操作" fixed="right" width="160">
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
-              <el-button @click="clickPublish(scope.row)" type="text" size="small">审核</el-button>
+              <el-button @click="clickPublish(scope.row)" type="text" size="small" v-if="scope.row.isValid==0||scope.row.isValid==3">审核</el-button>
               <!-- <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button> -->
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
@@ -639,10 +640,6 @@ export default {
     clickPublish(row){
       this.dialogPublishShow=true
       this.curId=row.id
-      this.form={
-        checkStatus:row.isValid, // 是否置顶
-        checkDesc:row.checkDesc, // 网页链接
-      }
     },
     submitForm(){
       this.form.id=this.curId
