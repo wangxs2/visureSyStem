@@ -7,7 +7,7 @@
       <div class="search-wrapper">
         <div class="search-input">
           <span>标题:</span>
-          <el-autocomplete v-model="title" :fetch-suggestions="querySearchAsync" placeholder="请选择物品名称" @select="handleSelect" clearable></el-autocomplete>
+          <el-autocomplete v-model="title" :fetch-suggestions="querySearchAsync" placeholder="请选择标题" @select="handleSelect" clearable></el-autocomplete>
         </div>
         <div class="search-input">
           <span>起始时间-结束时间:</span>

@@ -173,7 +173,9 @@
         </el-form>
     </el-dialog>
     <!-- 新增或编辑弹框 -->
-    <el-dialog :title="addOrEditPoint==1?'编辑':'新增'" :visible.sync="dialogVisibleAddOrEditShow" :close-on-click-modal="false">
+    <el-dialog :title="addOrEditPoint==1?'编辑':'新增'" :visible.sync="dialogVisibleAddOrEditShow"
+    :show-close="false" 
+    :close-on-click-modal="false">
       <div class="all-input-wrapper">
         <div class="input-wrapper">
           <div class="label-title"><span class="font-red">*</span>名称</div>
@@ -227,7 +229,7 @@
           <!-- <span class="desc need-table-desc">数量填写可便于物资调配，如不确定数量可不填写</span> -->
         </div>
         <div class="input-wrapper">
-          <div class="label-title"><span class="font-red">*</span>联系人-联系电话</div>
+          <div class="label-title">联系人-联系电话</div>
           <div class="comfirm-need-input-wrapper">
             <div class="comfirm-need-top comfirm-need-top-tel">
 
@@ -267,10 +269,13 @@
         </div>
         <div class="input-wrapper">
           <div class="label-title"><span class="font-red">*</span>上传附件</div>
-          <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove" :file-list="imgList"  :limit="5" >
+          <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove"
+          :on-error="uploadImgError" :on-exceed="changeExceed" 
+          :file-list="imgList"  :limit="5" >
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </div>
+          <el-button type="primary" @click="editDataClear">取消</el-button>
           <el-button type="primary" @click="submitForm1()">提交</el-button>
       </div>
     </el-dialog>
@@ -445,7 +450,7 @@ export default {
         this.form1.status=value.join(",")
     },
     changeNeedName(value){
-      console.log(value)
+      // console.log(value)
       if (value=="其他"){
         this.curNeedName=0
         this.materialDetails[this.testindex].needsName=''
@@ -504,12 +509,19 @@ export default {
         this.form1.picUrl=""
 
       }
-     console.log(this.imgList,"上传")
+    //  console.log(this.imgList,"上传")
       this.$message({
         message: "上传成功",
         type: 'success'
       });
 	  },
+    uploadImgError(err,file,fileList){
+      if (err.result&&err.result==-1){
+        this.$message.error(err.message)
+      } else {
+        this.$message.error("上传失败")
+      }
+    },
 	  handleRemove(file, fileList) {
      // 更新缓存文件
       this.imgList=fileList
@@ -522,7 +534,7 @@ export default {
           this.curImgList=[]
           this.form1.picUrl=""
       }
-     console.log(this.imgList,"删除")
+    //  console.log(this.imgList,"删除")
       this.$message({
         message: "删除成功",
         type: 'success'
@@ -532,9 +544,19 @@ export default {
       let data = new FormData();
       data.append("uploadFile",file.file);  //图片
       this.$fetchPostFile("file/upload",data).then(res => {
-        file.onSuccess(res)
-        // console.log(this.curImgList)
+        if (res.result&&res.result==-1){
+          file.onError(res)
+        } else {
+          file.onSuccess(res)
+          this.form.links=res
+        }
+      }).catch(err => {
+        file.onError(err)
+        // this.$message.error("上传失败")
       })
+    },
+    changeExceed(files, fileList){
+      this.$message.error("当前限制只可上传5个文件，重传文件前，请先删除旧文件")
     },
     handleChange(value){
       this.form1.province=value[0]
@@ -543,17 +565,68 @@ export default {
     add(){
       this.addOrEditPoint=0
       this.dialogVisibleAddOrEditShow=true
+
       this.form1={
+        materialType:1,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资对接情况
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        source:'', // 需求来源 
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      this.materialDetails=[
+        {
+          needsName:'',
+          needsNum:'',
+        }
+      ]
+      this.contectTelList=[
+        {
+          name:'',
+          tel:'',
+        }
+      ]
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.source=1 // 需求来源 
+      this.type=4 // 类型
+      this.status=[] // 物资对接情况
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
+    },
+
+    jsonFormat (dataset) {
+      const data = dataset
+      let datajson = {}
+      var jsonresult = []
+      for (let i = 0; i < data.length; i++) {
+        datajson.name=data[i][0]
+        datajson.tel=data[i][1]
+        jsonresult.push(datajson)
+        datajson = {}
       }
+      return jsonresult
     },
     editRow(row){
+
+      console.log(row)
       this.addOrEditPoint=1
       this.dialogVisibleAddOrEditShow=true
       this.curId=row.id
       this.form1={
         materialType:1,
         name:row.name, // 机构名称
-        provinceAndCity:'', // 省市
+        provinceAndCity:[row.province,row.city], // 省市
         province:row.province, // 省
         city:row.city, // 市
         address:row.address, // 详细地址
@@ -567,18 +640,49 @@ export default {
         picUrl:'', // 图片地址
         imgList:[] , //图片列表
       }
-
       
-      this.telindex=0
-      this.testindex=0
+      if (row.linkPeople){
+        row.contectTelList1=row.linkPeople.split(",")
+        let obj={}
+        let x=row.contectTelList1
+        for(let i=0;i<x.length;i++){
+          x[i]=x[i].split("-")
+        }
+
+        this.contectTelList=this.jsonFormat(x)
+        this.telindex=this.contectTelList.length-1
+      }
+      if (row.materialDetails) {
+        this.testindex=row.materialDetails.length-1
+        this.materialDetails=row.materialDetails //需求表
+      }
       this.curNeedName=1
       this.source=row.source // 需求来源 
       this.type=row.type// 类型
-      this.status=row.status.split(",") // 物资对接情况
+      if (row.status){
+        let x=row.status.split(",")
+        this.status=x.map(Number) // 物资对接情况
+      }
       
-      this.materialDetails=row.materialDetails,//需求表
-      this.contectTelList=row.contectTelList,
-      this.imgList=[]  //图片列表
+      console.log(row.materialDetails)
+      
+      if (row.picUrl) {
+        let x=row.picUrl.split(",")
+        let obj={}
+        x.forEach(item=> {
+          obj={
+            url: item,
+            name:item, 
+            response:item, 
+            status: 'finished'
+          }
+          this.imgList.push(obj)
+        })
+        this.imgListOld=this.imgList
+      } else {
+        this.imgList=[]
+      }
+      // this.imgList=[]  //图片列表
       this.curImgList=[]
     },
     //地址解析
@@ -591,6 +695,18 @@ export default {
             //  return lnglat
             this.form1.longitude=lnglat.lng
             this.form1.latitude=lnglat.lat
+            let newImgList=[]
+            this.imgList.forEach(item => {
+              newImgList.push(item.response)
+              this.form1.picUrl=newImgList.join(",")
+            })
+            let linkPeopleArr=[]
+            this.contectTelList.forEach(v=> {
+              if (v.tel||v.name&&v.tel){
+                linkPeopleArr.push(v.name+":"+v.tel)
+              }
+              this.form1.linkPeople=linkPeopleArr.join(',')
+            })
             
 
             this.form1.type=this.type
@@ -630,7 +746,6 @@ export default {
       });
     },
     submitForm1(){
-      console.log(this.imgList)
       if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address==''||this.status.length==0||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
       } else {
@@ -653,6 +768,47 @@ export default {
           this.regetList()
         }
       })
+    },
+    // 编辑点击取消时数据清空
+    editDataClear(){
+      this.dialogVisibleAddOrEditShow=false
+      this.form1={
+        materialType:1,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资对接情况
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        source:'', // 需求来源 
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      this.materialDetails=[
+        {
+          needsName:'',
+          needsNum:'',
+        }
+      ]
+      this.contectTelList=[
+        {
+          name:'',
+          tel:'',
+        }
+      ]
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.source=1 // 需求来源 
+      this.type=4 // 类型
+      this.status=[] // 物资对接情况
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
     },
     // 操作完成获取数据
     regetList(){
