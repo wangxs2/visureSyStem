@@ -32,6 +32,7 @@
           </el-select>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
+        <div class="search-input search-btn" @click="add">新增</div>
 
       </div>
       <div class="table-wrapper">
@@ -99,7 +100,7 @@
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看提供物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small" v-if="scope.row.isValid==0||scope.row.isValid==3">审核</el-button>
-              <!-- <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button> -->
+              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
             </template>
@@ -156,12 +157,120 @@
           </el-form-item>
         </el-form>
     </el-dialog>
+    <!-- 新增或编辑弹框 -->
+    <el-dialog :title="addOrEditPoint==1?'编辑':'新增'" :visible.sync="dialogVisibleAddOrEditShow"
+    :show-close="false" 
+    :close-on-click-modal="false">
+      <div class="all-input-wrapper">
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>名称</div>
+          <el-input v-model="form1.name" placeholder="请输入名称"></el-input>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>所在地区</div>
+          <el-cascader v-model="form1.provinceAndCity" :options="options" :props="{value:'name',label:'name',children:'city'}" @change="handleChange"></el-cascader>
+        </div>
+        <div class="input-wrapper">
+          <div><span class="font-red">*</span>详细地址（门牌号）</div>
+          <el-input v-model="form1.address" placeholder="请输入街道、门牌号等"></el-input>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>类型</div>
+          <el-radio-group v-model="type">
+            <el-radio v-for="item in luruTypeRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>物资提供方式</div>
+          <el-radio-group v-model="status">
+            <el-radio v-for="item in luruSupRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>是否需要物流</div>
+          <el-radio-group v-model="isLogistics">
+            <el-radio v-for="item in luruIsLogisticsRadio" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>需求表</div>
+          <div class="comfirm-need-input-wrapper">
+            <div class="comfirm-need-top">
+              <div class="comfirm-need-head">
+                <div class="name">物资名称</div>
+                <div class="num">需求数量</div>
+              </div>
+              <div class="comfirm-need-body" v-for="(iteam,index) in materialDetails" :key="index">
+                <div class="name" v-if="curNeedName">
+                  <el-select v-model="iteam.needsName" placeholder="请选择" @change="changeNeedName">
+                    <el-option v-for="item in needList" :key="item" :label="item" :value="item"></el-option>
+                  </el-select>
+                </div>
+                <div class="name" v-else>
+                  <el-input v-model="iteam.needsName" placeholder="请输入需求名称" size="samll"></el-input>
+                </div>
+                <div class="num">
+                  <el-input v-model="iteam.needsNum" placeholder="请输入需求数量" size="samll"></el-input>
+                  <img @click="deleteDemand(index)" style="" src="../../assets/images/reduce1.png" alt="">
+                </div>
+              </div>
+            </div>
+            <div class="comfirm-need-bottom" @click="addDemand"><img style="" src="../../assets/images/add1.png" alt="" >添加</div>
+          </div>
+          <!-- <span class="desc need-table-desc">数量填写可便于物资调配，如不确定数量可不填写</span> -->
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title">联系人-联系电话</div>
+          <div class="comfirm-need-input-wrapper">
+            <div class="comfirm-need-top comfirm-need-top-tel">
+
+              <div class="comfirm-need-head">
+                <div class="name">联系人</div>
+                <div class="num">联系方式</div>
+              </div>
+              <div class="comfirm-need-body" v-for="(iteam,index) in contectTelList" :key="index">
+                <div class="name">
+                  <el-input class="sup-name" v-model="iteam.name" type="text" placeholder="输入联系人"></el-input>
+                </div>
+                <div class="num">
+                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)"></el-input>
+                   <!-- @blur="linkTelBlur(1,iteam.tel,index)" -->
+                  <img @click="deleteTel(index)" style="" src="../../assets/images/reduce1.png" alt="">
+                </div>
+              </div>
+            </div>
+            <div class="comfirm-need-bottom" @click="addTel"><img style="" src="../../assets/images/add1.png" alt="" >添加</div>
+          </div>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>需求发布时间</div>
+          <el-date-picker v-model="form1.createTime" type="date" placeholder="选择发布时间" 
+          value-format="yyyy-MM-dd">
+          </el-date-picker>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title">其他说明</div>
+          <el-input v-model="form1.descr" type="textarea" :rows="5" placeholder="请输入其他说明"></el-input>
+        </div>
+        <div class="input-wrapper">
+          <div class="label-title"><span class="font-red">*</span>上传附件</div>
+          <el-upload class="upload-demo" action="#" :http-request="handleHttpUpolad" :on-success="uploadImgSuccess" :on-remove="handleRemove"
+          :on-error="uploadImgError" :on-exceed="changeExceed" 
+          :file-list="imgList"  :limit="2" >
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </div>
+          <el-button type="primary" @click="editDataClear">取消</el-button>
+          <el-button type="primary" @click="submitForm1()">提交</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
 import {screenHeight,formatDate} from "../../utils/util"
+import json from "../../utils/city_code.json"
 export default {
   name: 'gong',
   components: {
@@ -226,6 +335,80 @@ export default {
       },
 
       dialogVisibleDeleteShow:false,
+      dialogVisibleAddOrEditShow:false,
+      addOrEditPoint:0,
+      options:json,
+      contectTelList:[
+        {
+          name:'',
+          tel:'',
+        }
+      ],
+      materialDetails:[
+        {
+          needsName:'',
+          needsNum:'',
+        }
+      ],//需求表
+      telindex:0,
+      testindex:0,
+      curNeedName:1,
+      isLogistics:1, // 是否需要物流 
+      type:3, // 类型
+      status:4, // 物资提供方式
+      imgList:[] , //图片列表
+      curImgList:[],
+      form1:{
+        materialType:2,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资提供方式
+        isLogistics:'', // 是否需要物流
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      luruTypeRadio:[ //录入类型单选数据
+        {
+          type:3,
+          name:"企业"
+        },{
+          type:8,
+          name:"个人"
+        },{
+          type:9,
+          name:"公益组织"
+        },{
+          type:10,
+          name:"海外组织"
+        }
+      ], 
+      luruSupRadio:[ //录入物资提供方式单选数据
+        {
+          type:4,
+          name:"捐赠"
+        },{
+          type:5,
+          name:"采购"
+        }
+      ], 
+      luruIsLogisticsRadio:[ //录入是否需要物流单选数据
+        {
+          type:1,
+          name:"是"
+        },{
+          type:0,
+          name:"否"
+        },
+      ],
+      needList:["N95口罩","外科口罩","一次性医用口罩","隔离衣","一次性手术衣","医用帽","护目镜","防护眼罩","防护面罩","医用手套","防污染鞋套","长筒防护靴","测温仪","84消毒液","75%浓度酒精","一次性消毒床罩","消毒设备","对口药品","负压担架","负压救护车","消洗设备","全面型呼吸防护器","其他"],
     }
   },
   mounted () {
@@ -242,6 +425,307 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    changeNeedName(value){
+      // console.log(value)
+      if (value=="其他"){
+        this.curNeedName=0
+        this.materialDetails[this.testindex].needsName=''
+      } else {
+        this.curNeedName=1
+      }
+    },
+    addTel(){
+      this.telindex++
+      this.contectTelList.push({
+        name:'',
+        tel:'',
+      })
+    },
+    deleteTel(index){
+      this.contectTelList.splice(index,1)
+      this.telindex--
+    },
+    //添加需求表
+    addDemand(){
+      this.curNeedName=1
+      let x=this.materialDetails.some(item =>{
+          return item.needsName == ""
+      })
+      if(x||this.materialDetails[this.testindex].needsName==''){
+        this.$message.error( "请完善信息(至少输入物资名称)");
+      }else{
+        this.testindex++
+        this.materialDetails.push({
+          needsName:'',
+          needsNum:'',
+        })
+      }
+    },
+    //删除需求表
+    deleteDemand(index){
+      if(this.testindex<1){
+        this.materialDetails[index].needsName=''
+        this.materialDetails[index].needsNum=''
+        this.$message.error( "至少添加一条需求");
+      }else{
+        this.materialDetails.splice(index,1)
+        this.testindex--
+      }
+    },
+	  uploadImgSuccess(response, file, fileList) {
+     // 缓存接口调用所需的文件路径
+      this.imgList=fileList
+      if (this.imgList&&this.imgList.length>0){
+        this.imgList.forEach(item => {
+          this.curImgList.push(item.response)
+        })
+        this.form1.picUrl=this.curImgList.join(",")
+      } else {
+          this.curImgList=[]
+        this.form1.picUrl=""
+
+      }
+    //  console.log(this.imgList,"上传")
+      this.$message({
+        message: "上传成功",
+        type: 'success'
+      });
+	  },
+    uploadImgError(err,file,fileList){
+      if (err.result&&err.result==-1){
+        this.$message.error(err.message)
+      } else {
+        this.$message.error("上传失败")
+      }
+    },
+	  handleRemove(file, fileList) {
+     // 更新缓存文件
+      this.imgList=fileList
+      if (this.imgList&&this.imgList.length>0){
+        this.imgList.forEach(item => {
+          this.curImgList.push(item.response)
+        })
+        this.form1.picUrl=this.curImgList.join(",")
+      } else {
+          this.curImgList=[]
+          this.form1.picUrl=""
+      }
+    //  console.log(this.imgList,"删除")
+      this.$message({
+        message: "删除成功",
+        type: 'success'
+      });
+	  },
+    handleHttpUpolad(file){
+      let data = new FormData();
+      data.append("uploadFile",file.file);  //图片
+      this.$fetchPostFile("file/upload",data).then(res => {
+        if (res.result&&res.result==-1){
+          file.onError(res)
+        } else {
+          file.onSuccess(res)
+          this.form.links=res
+        }
+      }).catch(err => {
+        file.onError(err)
+        // this.$message.error("上传失败")
+      })
+    },
+    changeExceed(files, fileList){
+      this.$message.error("当前限制只可上传2个文件，重传文件前，请先删除旧文件")
+    },
+    handleChange(value){
+      this.form1.province=value[0]
+      this.form1.city=value[1]
+    },
+    add(){
+      this.addOrEditPoint=0
+      this.dialogVisibleAddOrEditShow=true
+
+      this.form1={
+        materialType:2,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资提供方式
+        isLogistics:'', // 是否需要物流 
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      this.materialDetails=[
+        {
+          needsName:'',
+          needsNum:'',
+        }
+      ]
+      this.contectTelList=[
+        {
+          name:'',
+          tel:'',
+        }
+      ]
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.isLogistics=1 // 是否需要物流 
+      this.type=3 // 类型
+      this.status=4 // 物资提供方式
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
+    },
+
+    jsonFormat (dataset) {
+      const data = dataset
+      let datajson = {}
+      var jsonresult = []
+      for (let i = 0; i < data.length; i++) {
+        datajson.name=data[i][0]
+        datajson.tel=data[i][1]
+        jsonresult.push(datajson)
+        datajson = {}
+      }
+      return jsonresult
+    },
+    editRow(row){
+
+      console.log(row)
+      this.addOrEditPoint=1
+      this.dialogVisibleAddOrEditShow=true
+      this.curId=row.id
+      this.form1={
+        materialType:2,
+        name:row.name, // 机构名称
+        provinceAndCity:[row.province,row.city], // 省市
+        province:row.province, // 省
+        city:row.city, // 市
+        address:row.address, // 详细地址
+        type:'', // 类型
+        status:'', // 物资提供方式
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:row.createTime, // 发布时间
+        isLogistics:'', // 是否需要物流 
+        descr:row.descr, // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      }
+      
+      if (row.linkPeople){
+        row.contectTelList1=row.linkPeople.split(",")
+        let obj={}
+        let x=row.contectTelList1
+        for(let i=0;i<x.length;i++){
+          x[i]=x[i].split("-")
+        }
+
+        this.contectTelList=this.jsonFormat(x)
+        this.telindex=this.contectTelList.length-1
+      }
+      if (row.materialDetails) {
+        this.testindex=row.materialDetails.length-1
+        this.materialDetails=row.materialDetails //需求表
+      }
+      this.curNeedName=1
+      console.log(row.isLogistics, row.status)
+      this.isLogistics=row.isLogistics // 是否需要物流
+      this.type=row.type// 类型
+      this.status=Number(row.status) // 物资提供方式
+      
+      console.log(row.materialDetails)
+      
+      if (row.picUrl) {
+        let x=row.picUrl.split(",")
+        let obj={}
+        x.forEach(item=> {
+          obj={
+            url: item,
+            name:item, 
+            response:item, 
+            status: 'finished'
+          }
+          this.imgList.push(obj)
+        })
+        this.imgListOld=this.imgList
+      } else {
+        this.imgList=[]
+      }
+      // this.imgList=[]  //图片列表
+      this.curImgList=[]
+    },
+    //地址解析
+    addresschange(address){
+      var geocoder = new AMap.Geocoder();
+      geocoder.getLocation(address, (status, result)=> {
+          if (status === 'complete'&&result.geocodes.length) {
+          
+            let lnglat = result.geocodes[0].location
+            //  return lnglat
+            this.form1.longitude=lnglat.lng
+            this.form1.latitude=lnglat.lat
+            let newImgList=[]
+            this.imgList.forEach(item => {
+              newImgList.push(item.response)
+              this.form1.picUrl=newImgList.join(",")
+            })
+            let linkPeopleArr=[]
+            this.contectTelList.forEach(v=> {
+              if (v.tel||v.name&&v.tel){
+                linkPeopleArr.push(v.name+":"+v.tel)
+              }
+              this.form1.linkPeople=linkPeopleArr.join(',')
+            })
+            
+
+            this.form1.type=this.type
+            this.form1.materialDetails=this.materialDetails
+            this.form1.contectTelList=this.contectTelList
+            this.form1.isLogistics=this.isLogistics
+            console.log(this.form1)
+            
+            if (this.addOrEditPoint==0){
+              this.$fetchPost("material/insert",this.form1,"json").then(res => {
+                this.$message({
+                  message: res.message,
+                  type: 'success'
+                });
+                if (res.result==1){
+                  this.dialogVisibleAddOrEditShow=false
+                  this.regetList()
+                }
+              })
+            }else if (this.addOrEditPoint==1){
+              this.form1.id=this.curId
+              this.$fetchPost("material/update",this.form1,"json").then(res => {
+                this.$message({
+                  message: res.message,
+                  type: 'success'
+                });
+                if (res.result==1){
+                  this.dialogVisibleAddOrEditShow=false
+                  this.regetList()
+                }
+              })
+            } 
+            
+          }else{
+              // log.error('根据地址查询位置失败');
+          }
+      });
+    },
+    submitForm1(){
+      if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address==''||this.materialDetails.length==0||this.form1.createTime==''||this.imgList.length==0){
+        this.$message.error( "请输入完整信息");
+      } else {
+        this.addresschange(this.form1.province+this.form1.city+this.form1.address)
+      }
+    },
     clickPublish(row){
       this.dialogPublishShow=true
       this.curId=row.id
@@ -260,7 +744,47 @@ export default {
         }
       })
     },
-    editRow(){},
+    // 编辑点击取消时数据清空
+    editDataClear(){
+      this.dialogVisibleAddOrEditShow=false
+      this.form1={
+        materialType:2,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资提供方式
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        isLogistics:'', // 是否需要物流
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      this.materialDetails=[
+        {
+          needsName:'',
+          needsNum:'',
+        }
+      ]
+      this.contectTelList=[
+        {
+          name:'',
+          tel:'',
+        }
+      ]
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.isLogistics=1 // 是否需要物流 
+      this.type=3 // 类型
+      this.status=[] // 物资提供方式
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
+    },
     // 操作完成获取数据
     regetList(){
       this.pageshow = false
@@ -275,6 +799,38 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+
+      this.form={
+        checkStatus:1, // 是否置顶
+        checkDesc:'', // 网页链接
+      },
+      this.form1={
+        materialType:2,
+        name:'', // 机构名称
+        provinceAndCity:'', // 省市
+        province:'', // 省
+        city:'', // 市
+        address:'', // 详细地址
+        type:'', // 类型
+        status:'', // 物资提供方式
+        materialDetails:[],//需求表
+        contectTelList:[],
+        createTime:'', // 发布时间
+        isLogistics:'', // 是否需要物流 
+        descr:'', // 其他说明
+        picUrl:'', // 图片地址
+        imgList:[] , //图片列表
+      },
+      this.telindex=0
+      this.testindex=0
+      this.curNeedName=1
+      this.isLogistics=1 // 是否需要物流 
+      this.type=3 // 类型
+      this.status=4 // 物资提供方式
+      this.imgList=[]  //图片列表
+      this.curImgList=[]
+
+
     },
     deleteRow(row){
       this.curId=row.id
@@ -399,6 +955,110 @@ export default {
 <style lang="scss">
 @import '../../assets/css/common.scss';
 .gong{
+  .input-wrapper{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    padding:10px 0;
+    .label-title{
+      display:flex;
+      justify-content: flex-start;
+      align-items: center;
+      width:200px;
+      padding-right:10px;
+    }
+    .font-red{
+      color:red;
+    }
+    
+    .comfirm-need-input-wrapper{
+      background:#fff;
+      border-radius: 5px;
+      font-size:15px;
+      font-family:PingFang SC;
+      font-weight:400;
+      color:rgba(51,51,51,1);
+      .comfirm-need-top{
+        .name{
+          display: flex;
+          justify-content: center;
+          align-items:center;
+          width: 300px;
+          border-right: 1px solid #F1F2F5;
+        }
+        .num{
+          display: flex;
+          justify-content: center;
+          align-items:center;
+          width: 200px;
+        }
+        &.comfirm-need-top-tel{
+          .name{
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            width: 300px;
+            border-right: 1px solid #F1F2F5;
+          }
+          .num{
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            width: 200px;
+          }
+
+        }
+        .comfirm-need-head{
+          display: flex;
+          justify-content: flex-start;
+          height: 40px;
+          background:#E5EAF2;
+          border-top-left-radius:5px;
+          border-top-right-radius:5px;
+          border-bottom: 1px solid #F1F2F5;
+          .name{}
+          .num{}
+        }
+        .comfirm-need-body{
+          display: flex;
+          justify-content: flex-start;
+          border-bottom: 1px solid #F1F2F5;
+          .name{
+            .sup-name{}
+          }
+          .num {
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            .sup-num,.sup-name {
+              text-align:center;
+            }
+            img{
+              width:30px;
+              height: 30px;
+              padding-right: 5px;
+            }
+          }
+          
+        }
+      }
+      .comfirm-need-bottom{
+        height: 30px;
+        display: flex;
+        justify-content:center;
+        align-items:center;
+        font-size:15px;
+        font-family:PingFang SC;
+        font-weight:500;
+        color:rgba(102,102,102,1);
+        img{
+          width: 30px;
+          height: 30px;
+          margin-right:5px;
+        }
+      }
+    }
+  }
   
 }
 
