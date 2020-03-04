@@ -32,7 +32,7 @@
           </el-select>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
-        <div class="search-input search-btn" @click="add">新增</div>
+        <!-- <div class="search-input search-btn" @click="add">新增</div> -->
 
       </div>
       <div class="table-wrapper">
@@ -100,7 +100,7 @@
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看提供物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small" v-if="scope.row.isValid==0||scope.row.isValid==3">审核</el-button>
-              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
+              <!-- <el-button @click="editRow(JSON.parse(JSON.stringify(scope.row)))" type="text" size="small">编辑</el-button> -->
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
             </template>
