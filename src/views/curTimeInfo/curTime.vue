@@ -13,7 +13,7 @@
           <span>起始时间-结束时间:</span>
           <el-date-picker
             v-model="startEndTate"
-            value-format="yyyy-MM-dd hh:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
             type="datetimerange"
             range-separator="-"
             start-placeholder="开始日期"
@@ -94,7 +94,7 @@
           <el-input v-model="form.headline" placeholder="请输入标题"></el-input>
         </el-form-item>
         <el-form-item label="发布时间" prop="pubDate">
-          <el-date-picker v-model="form.pubDate" type="datetime" placeholder="选择发布时间" format="yyyy-MM-dd hh:mm:ss">
+          <el-date-picker v-model="form.pubDate" type="datetime" placeholder="选择发布时间" format="yyyy-MM-dd HH:mm:ss">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="消息主体" prop="mainBody">

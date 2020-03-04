@@ -10,7 +10,7 @@
           <el-date-picker
             v-model="startEndTate"
             type="datetimerange"
-            value-format="yyyy-MM-dd hh:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期">
@@ -32,7 +32,7 @@
           </el-select>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
-        <!-- <div class="search-input search-btn" @click="add">新增</div> -->
+        <div class="search-input search-btn" @click="add">新增</div>
 
       </div>
       <div class="table-wrapper">
@@ -115,7 +115,7 @@
             <template slot-scope="scope">
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small" v-if="scope.row.isValid==0||scope.row.isValid==3">审核</el-button>
-              <!-- <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button> -->
+              <el-button @click="editRow(scope.row)" type="text" size="small">编辑</el-button>
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
 
             </template>
@@ -253,7 +253,7 @@
         </div>
         <div class="input-wrapper">
           <div class="label-title"><span class="font-red">*</span>需求发布时间</div>
-          <el-date-picker v-model="form1.createTime" type="datetime" placeholder="选择发布时间" 
+          <el-date-picker v-model="form1.createTime" type="date" placeholder="选择发布时间" 
           value-format="yyyy-MM-dd">
           </el-date-picker>
         </div>
