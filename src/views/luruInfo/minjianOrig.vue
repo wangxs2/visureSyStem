@@ -47,6 +47,7 @@
               <span v-if="scope.row.materialType==3">民间组织</span>
             </template>
           </el-table-column>
+          <el-table-column prop="country" label="国家"></el-table-column>
           <el-table-column prop="province" label="省"></el-table-column>
           <el-table-column prop="city" label="市"></el-table-column>
           <el-table-column prop="address" label="详细地址"></el-table-column>
