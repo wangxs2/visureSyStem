@@ -24,7 +24,7 @@
 
       </div>
       <div class="table-wrapper">
-        <el-table :data="tableData.slice((page-1)*pageSize,page*pageSize)" :height="curHeight-230" style="width: 100%">
+        <el-table :data="tableData.slice((page-1)*pageSize,page*pageSize)" :height="curHeight" ref="table" style="width: 100%">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="country" label="国家"></el-table-column>
           <el-table-column prop="province" label="省" width="80"></el-table-column>
@@ -78,7 +78,7 @@ export default {
   },
   data () {
     return {
-      curHeight:0,
+      curHeight:null,
       dialogTableVisible:false,
       page:1,
       pageSize:10,
@@ -93,7 +93,8 @@ export default {
     }
   },
   mounted () {
-    this.curHeight=screenHeight()
+    // this.curHeight=screenHeight()
+    this.curHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 80;
 
   },
   created () {

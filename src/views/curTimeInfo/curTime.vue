@@ -36,7 +36,7 @@
 
       </div>
       <div class="table-wrapper">
-        <el-table :data="tableData.slice((page-1)*pageSize,page*pageSize)" :height="curHeight-230" style="width: 100%">
+        <el-table :data="tableData.slice((page-1)*pageSize,page*pageSize)" :height="curHeight" ref="table" style="width: 100%">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="headline" label="标题" :show-overflow-tooltip="true">
             <template slot-scope="scope">
@@ -52,7 +52,7 @@
           <el-table-column prop="publishSource" label="来源"></el-table-column>
           <el-table-column prop="url" label="链接">
             <template slot-scope="scope">
-              <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left"v-if="scope.row.url" @click="goUrl(scope.row)">{{scope.row.url}}</div>
+              <div style="padding:5px;color:#4F84FD;cursor:pointer;" class="font-left" v-if="scope.row.url" @click="goUrl(scope.row)">{{scope.row.url}}</div>
             </template>
           </el-table-column>
           <el-table-column prop="updateTime" label="更新时间"></el-table-column>
@@ -144,7 +144,7 @@ export default {
       }
     };
     return {
-      curHeight:0,
+      curHeight:null,
       dialogTableVisible:false,
       page:1,
       pageSize:10,
@@ -209,7 +209,8 @@ export default {
     }
   },
   mounted () {
-    this.curHeight=screenHeight()
+    // this.curHeight=screenHeight()
+    this.curHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 80;
 
   },
   created () {
