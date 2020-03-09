@@ -94,17 +94,40 @@ export default {
   mounted () {
     // this.curHeight=screenHeight()
     this.curHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 80;
+    this.searchDataSession()
 
   },
   created () {
-    this.params={
-      orgType:3,
-      page:this.page,
-      pageSize:this.pageSize
-    }
-    this.getTableData(this.params)
+    // this.params={
+    //   orgType:3,
+    //   page:this.page,
+    //   pageSize:this.pageSize
+    // }
+    // this.getTableData(this.params)
   },
   methods: {
+    // 存储查询条件获取
+    searchDataSession(){
+      let searchData = JSON.parse(sessionStorage.getItem("searchData"))
+
+      if (searchData){
+        this.params=searchData
+        this.content=searchData.content
+        if (searchData.startDate&&searchData.endDate){
+
+          this.startEndTate=[searchData.startDate,searchData.endDate]
+        }
+        this.getTableData(this.params)
+      } else {
+        this.params={
+          orgType:3,
+          page:this.page,
+          pageSize:this.pageSize
+        }
+        this.getTableData(this.params)
+      }
+
+    },
     deleteRow(row){
       this.curId=row.id
       this.dialogVisibleDeleteShow=true
@@ -127,12 +150,14 @@ export default {
       this.pageshow = false
       this.page=1
       this.tableData=[]
-      this.params={
-        orgType:3,
-        page:this.page,
-        pageSize:this.pageSize
-      }
-      this.getTableData(this.params)
+      
+      this.searchDataSession()
+      // this.params={
+      //   orgType:3,
+      //   page:this.page,
+      //   pageSize:this.pageSize
+      // }
+      // this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true
       })
@@ -160,6 +185,7 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+      sessionStorage.setItem("searchData",JSON.stringify(this.params))
 
     },
     getTableData(params){

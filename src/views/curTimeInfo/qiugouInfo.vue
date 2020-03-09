@@ -198,17 +198,40 @@ export default {
   mounted () {
     // this.curHeight=screenHeight()
     this.curHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 80;
+    this.searchDataSession()
 
   },
   created () {
-    this.params={
-      page:this.page,
-      pageSize:this.pageSize
-    }
-    this.getTableData(this.params)
+    // this.params={
+    //   page:this.page,
+    //   pageSize:this.pageSize
+    // }
+    // this.getTableData(this.params)
     this.getNeedsNameList()
   },
   methods: {
+    // 存储查询条件获取
+    searchDataSession(){
+      let searchData = JSON.parse(sessionStorage.getItem("searchData"))
+
+      if (searchData){
+        this.params=searchData
+        this.title=searchData.title
+        this.status=searchData.status
+        if (searchData.startDate&&searchData.endDate){
+
+          this.startEndTate=[searchData.startDate,searchData.endDate]
+        }
+        this.getTableData(this.params)
+      } else {
+        this.params={
+          page:this.page,
+          pageSize:this.pageSize
+        }
+        this.getTableData(this.params)
+      }
+
+    },
 	  uploadImgSuccess(response, file, fileList) {
      // 缓存接口调用所需的文件路径
       this.$refs.imageUpload.clearValidate();
@@ -348,11 +371,13 @@ export default {
       this.pageshow = false
       this.page=1
       this.tableData=[]
-      this.params={
-        page:this.page,
-        pageSize:this.pageSize
-      }
-      this.getTableData(this.params)
+      
+      this.searchDataSession()
+      // this.params={
+      //   page:this.page,
+      //   pageSize:this.pageSize
+      // }
+      // this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true
       })
@@ -406,6 +431,7 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+      sessionStorage.setItem("searchData",JSON.stringify(this.params))
 
     },
     getTableData(params){

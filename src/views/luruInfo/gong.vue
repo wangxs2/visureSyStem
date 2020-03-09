@@ -415,18 +415,42 @@ export default {
   mounted () {
     // this.curHeight=screenHeight()
     this.curHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 80;
+    this.searchDataSession()
 
   },
   created () {
-    this.params={
-      materialType:2,
-      page:this.page,
-      pageSize:this.pageSize
-    }
-    this.getTableData(this.params)
+    // this.params={
+    //   materialType:2,
+    //   page:this.page,
+    //   pageSize:this.pageSize
+    // }
+    // this.getTableData(this.params)
     this.getNeedsNameList()
   },
   methods: {
+    // 存储查询条件获取
+    searchDataSession(){
+      let searchData = JSON.parse(sessionStorage.getItem("searchData"))
+
+      if (searchData){
+        this.params=searchData
+        this.goodsName=searchData.needName
+        this.acceptInfo=searchData.status
+        if (searchData.startDate&&searchData.endDate){
+
+          this.startEndTate=[searchData.startDate,searchData.endDate]
+        }
+        this.getTableData(this.params)
+      } else {
+        this.params={
+          materialType:2,
+          page:this.page,
+          pageSize:this.pageSize
+        }
+        this.getTableData(this.params)
+      }
+
+    },
     changeNeedName(value){
       // console.log(value)
       if (value=="其他"){
@@ -792,12 +816,14 @@ export default {
       this.pageshow = false
       this.page=1
       this.tableData=[]
-      this.params={
-        materialType:2,
-        page:this.page,
-        pageSize:this.pageSize
-      }
-      this.getTableData(this.params)
+      
+      this.searchDataSession()
+      // this.params={
+      //   materialType:2,
+      //   page:this.page,
+      //   pageSize:this.pageSize
+      // }
+      // this.getTableData(this.params)
       this.$nextTick(() => {
           this.pageshow = true
       })
@@ -904,6 +930,7 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+      sessionStorage.setItem("searchData",JSON.stringify(this.params))
 
     },
     getTableData(params){

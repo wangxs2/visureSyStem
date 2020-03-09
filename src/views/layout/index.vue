@@ -111,6 +111,9 @@ export default {
   },
   watch:{
     $route(to,from){
+        
+      sessionStorage.removeItem("searchData")
+      sessionStorage.removeItem("searchData1")
     //   console.log(to.path)
       sessionStorage.setItem('curMenu',to.path)
     }
