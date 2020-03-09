@@ -37,9 +37,20 @@
           <el-table-column prop="linkPeople" label="联系人"></el-table-column>
           <el-table-column prop="linkTel" label="联系方式"></el-table-column>
           <el-table-column prop="needsName" label="物资清单" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="descr" label="备注" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="name" label="操作" fixed="right" width="120">
+          <el-table-column prop="status" label="状态">
             <template slot-scope="scope">
+              <div v-if="scope.row.status==1">正常经营</div>
+              <div v-else-if="scope.row.status==2">政府接管</div>
+              <div v-if="scope.row.status==3||scope.row.status==''||scope.row.status==undefined">未核实</div>
+            </template>
+
+          </el-table-column>
+          <el-table-column prop="descr" label="备注" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="name" label="操作" fixed="right" width="160">
+            <template slot-scope="scope">
+              <el-button @click="updateRow(scope.row,1)" type="text" size="small" v-if="scope.row.status!=1">正常经营</el-button>
+              <el-button @click="updateRow(scope.row,2)" type="text" size="small" v-if="scope.row.status!=2">政府接管</el-button>
+              <el-button @click="updateRow(scope.row,3)" type="text" size="small" v-if="scope.row.status!=3&&scope.row.status!=''&&scope.row.status!=undefined">未核实</el-button>
               <el-button @click="deleteRow(scope.row)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -105,6 +116,19 @@ export default {
     this.getTableData(this.params)
   },
   methods: {
+    updateRow(row,status){
+      this.curId=row.id
+      this.$fetchPost("hospital/updateStatus",{id:this.curId,status:status}).then(res => {
+        this.$message({
+          message: res.message,
+          type: 'success'
+        });
+        if (res.result==1){
+          this.regetList()
+        }
+      })
+
+    },
     deleteRow(row){
       this.curId=row.id
       this.dialogVisibleDeleteShow=true
