@@ -32,6 +32,7 @@
           </el-select>
         </div> -->
         <div class="search-input search-btn" @click="search">搜索</div>
+        <div class="search-input search-btn" @click="handlderive">导出</div>
         <!-- <div class="search-input search-btn" @click="add">新增</div> -->
 
       </div>
@@ -242,7 +243,7 @@
 </template>
 
 <script>
-import {screenHeight,formatDate} from "../../utils/util"
+import {screenHeight,formatDate,curDataTime} from "../../utils/util"
 import json from "../../utils/city_code.json"
 export default {
   name: 'minjianOrig',
@@ -277,6 +278,8 @@ export default {
         }
       ],
       tableData: [],
+      tableDataExecl:[],
+      tableExecl:0,
       total:0,
       gridData: [],
       params:{},
@@ -391,9 +394,102 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    getTableDataExecal(params){
+      this.$fetchGet("material/getMaterial",params).then(res => {
+          // this.total=res.data.total
+          // console.log(res)
+          this.tableDataExecl=res.data.list
+          if (this.tableDataExecl&&this.tableDataExecl.length>0){
+            this.tableDataExecl.forEach(item => {
+              if (item.linkPeople){
+                item.linkPeople=item.linkPeople.replace(/:/g, "-")
+                item.linkPeopleList=item.linkPeople.split(',')
+                item.linkPeopleList.forEach(items => {
+                  // items=items.split(":").join("-")
+                  // console.log(items)
+
+                })
+                item.linkPeopleList=item.linkPeopleList
+              }
+              if (item.createTime){
+                item.createTime=formatDate(item.createTime)
+              }
+              
+            })
+          }
+      })
+
+    },
+    handlderive() {
+      this.tableExecl=1
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = [  '机构名称','类型','国家','省', '市', '详细地址', '服务覆盖范围', '服务起始时间', '服务结束时间', '联系人','图片链接', '物资详情','备注','审核状态','审核意见','发布状态']
+          const filterVal = ['name','materialType','country',"province", 'city', 'address', 'serviceRange', 'startTime', 'endTime', 'linkPeople','attachment', 'detail','descr','isValid','checkDescr','hasShow']
+          const data = this.formatJson(filterVal, this.tableDataExecl)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: curDataTime()+"导出记录",
+            autoWidth: true,
+            // filename: this.filename
+          })
+        })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === 'materialType') {
+            if (v[j]==1){
+              v[j]="需求方"
+            } else if(v[j]==2){
+              v[j]="提供方"
+            } else if(v[j]==3){
+              v[j]="民间组织"
+            }
+            return v[j]
+          }
+          if (j === 'attachment'){
+            if (v[j]&&v[j].length){
+              v[j]=v[j].join(",")
+            }
+            return v[j]
+
+          }
+          if (j === 'isValid') {
+            if (v[j]==0){
+              v[j]="未审核"
+            } else if(v[j]==1){
+              v[j]="审核通过"
+            } else if(v[j]==2){
+              v[j]="审核不通过"
+            } else if(v[j]==3){
+              v[j]="后台录入"
+            }
+            return v[j]
+          }
+          if (j === 'hasShow') {
+            if (v[j]==0){
+              v[j]="未发布"
+            } else if(v[j]==1){
+              v[j]="已发布"
+            }
+            return v[j]
+          }
+          // if (j === 'createTime') {
+          //   if (v[j]){
+          //     v[j]=v[j].substring(0,10)
+          //   }
+          //   return v[j]
+          // }
+          return v[j]
+            
+        })
+      )
+    },
     // 存储查询条件获取
     searchDataSession(){
       let searchData = JSON.parse(sessionStorage.getItem("searchData"))
+      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
 
       if (searchData){
         this.params=searchData
@@ -412,6 +508,24 @@ export default {
         }
         this.getTableData(this.params)
       }
+
+      if (searchData1){
+        let x=searchData1
+        this.goodsName=searchData1.needName
+        // this.acceptInfo=searchData1.status
+        if (searchData1.startDate&&searchData1.endDate){
+
+          this.startEndTate=[searchData1.startDate,searchData1.endDate]
+        }
+        this.getTableDataExecal(x)
+      } else {
+        let x={
+          materialType:3,
+        }
+        this.getTableDataExecal(x)
+      }
+
+
 
     },
     blurAnthor(){
@@ -897,6 +1011,23 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+      if (this.tableExecl=1){
+        let x={
+          materialType:3,
+          needName:this.goodsName,
+          // status:this.acceptInfo,
+        }
+        if (this.startEndTate&&this.startEndTate.length>0){
+          x.startDate=this.startEndTate[0]
+          x.endDate=this.startEndTate[1]
+        } else {
+          x.startDate=''
+          x.endDate=''
+        }
+        this.getTableDataExecal(x)
+        sessionStorage.setItem("searchData1",JSON.stringify(x))
+
+      }
       sessionStorage.setItem("searchData",JSON.stringify(this.params))
 
     },
@@ -936,12 +1067,12 @@ export default {
       this.getTableData(this.params)
     },
     clickLookGoods(row){
-      this.gridData=[]
+      // this.gridData=[]
       this.dialogTableVisible=true
-      this.$fetchGet('material/getMaterialDetail',{materialId:row.id}).then(res => {
-        this.gridData=res.data
-      })
-      // this.gridData=row.materialDetails
+      // this.$fetchGet('material/getMaterialDetail',{materialId:row.id}).then(res => {
+      //   this.gridData=res.data
+      // })
+      this.gridData=row.materialDetails
     },
     goUrl(item){
       window.open(item)

@@ -21,6 +21,7 @@
           <el-input v-model="content" placeholder="请输入查询内容" clearable></el-input>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
+        <div class="search-input search-btn" @click="handlderive">导出</div>
 
       </div>
       <div class="table-wrapper">
@@ -82,7 +83,7 @@
 </template>
 
 <script>
-import {screenHeight,formatDate} from "../../utils/util"
+import {screenHeight,formatDate,curDataTime} from "../../utils/util"
 export default {
   name: 'gong1',
   components: {
@@ -96,6 +97,8 @@ export default {
       startEndTate:[],
       content:'',
       tableData: [],
+      tableDataExecl:[],
+      tableExecl:0,
       total:0,
       params:{},
       pageshow:true,
@@ -118,9 +121,68 @@ export default {
     // this.getTableData(this.params)
   },
   methods: {
+    getTableDataExecal(params){
+      this.$fetchGet("hospital/getHospital",params).then(res => {
+          // this.total=res.data.total
+          // console.log(res)
+          this.tableDataExecl=res.data.list
+          if (this.tableDataExecl&&this.tableDataExecl.length>0){
+            this.tableDataExecl.forEach(item => {
+              if (item.linkPeople){
+                item.linkPeople=item.linkPeople.replace(/:/g, "-")
+                item.linkPeopleList=item.linkPeople.split(',')
+                item.linkPeopleList.forEach(items => {
+                  // items=items.split(":").join("-")
+                  // console.log(items)
+
+                })
+                item.linkPeopleList=item.linkPeopleList
+              }
+              if (item.createTime){
+                item.createTime=formatDate(item.createTime)
+              }
+              
+            })
+          }
+      })
+
+    },
+    handlderive() {
+      this.tableExecl=1
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = [ '国家','省', '市', '机构名称', '经度', '纬度', '物资提供时间', '联系人', '联系方式','物资清单','状态', '备注']
+          const filterVal = ['country',"province", 'city', 'hospitalName', 'gaodeLon', 'gaodeLat', 'createTime', 'linkPeople', 'linkTel','needsName','status', 'descr']
+          const data = this.formatJson(filterVal, this.tableDataExecl)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: curDataTime()+"导出记录",
+            autoWidth: true,
+            // filename: this.filename
+          })
+        })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === 'status') {
+            if (v[j]==1){
+              v[j]="正常经营"
+            } else if(v[j]==2){
+              v[j]="政府接管"
+            } else if(v[j]==3||v[j]==''||v[j]==undefined){
+              v[j]="未核实"
+            }
+            return v[j]
+          }
+          return v[j]
+        })
+      )
+    },
     // 存储查询条件获取
     searchDataSession(){
       let searchData = JSON.parse(sessionStorage.getItem("searchData"))
+      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
 
       if (searchData){
         this.params=searchData
@@ -137,6 +199,21 @@ export default {
           pageSize:this.pageSize
         }
         this.getTableData(this.params)
+      }
+
+      if (searchData1){
+        let x=searchData1
+        this.content=searchData1.content
+        if (searchData1.startDate&&searchData1.endDate){
+
+          this.startEndTate=[searchData1.startDate,searchData1.endDate]
+        }
+        this.getTableDataExecal(x)
+      } else {
+        let x={
+          orgType:2,
+        }
+        this.getTableDataExecal(x)
       }
 
     },
@@ -210,6 +287,22 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+      if (this.tableExecl=1){
+        let x={
+          orgType:2,
+          content:this.content,
+        }
+        if (this.startEndTate&&this.startEndTate.length>0){
+          x.startDate=this.startEndTate[0]
+          x.endDate=this.startEndTate[1]
+        } else {
+          x.startDate=''
+          x.endDate=''
+        }
+        this.getTableDataExecal(x)
+        sessionStorage.setItem("searchData1",JSON.stringify(x))
+
+      }
       sessionStorage.setItem("searchData",JSON.stringify(this.params))
 
     },

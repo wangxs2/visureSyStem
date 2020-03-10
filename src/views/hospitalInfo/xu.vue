@@ -21,6 +21,7 @@
           <el-input v-model="content" placeholder="请输入查询内容" clearable></el-input>
         </div>
         <div class="search-input search-btn" @click="search">搜索</div>
+        <div class="search-input search-btn" @click="handlderive">导出</div>
 
       </div>
       <div class="table-wrapper">
@@ -70,7 +71,7 @@
 </template>
 
 <script>
-import {screenHeight,formatDate} from "../../utils/util"
+import {screenHeight,formatDate,curDataTime} from "../../utils/util"
 import json from "../../utils/city_code.json"
 export default {
   name: 'xu1',
@@ -85,6 +86,8 @@ export default {
       startEndTate:[],
       content:'',
       tableData: [],
+      tableDataExecl:[],
+      tableExecl:0,
       total:0,
       params:{},
       pageshow:true,
@@ -107,9 +110,102 @@ export default {
     // this.getTableData(this.params)
   },
   methods: {
+    getTableDataExecal(params){
+      this.$fetchGet("hospital/getHospital",params).then(res => {
+          // this.total=res.data.total
+          // console.log(res)
+          this.tableDataExecl=res.data.list
+          if (this.tableDataExecl&&this.tableDataExecl.length>0){
+            this.tableDataExecl.forEach(item => {
+              if (item.linkPeople){
+                item.linkPeople=item.linkPeople.replace(/:/g, "-")
+                item.linkPeopleList=item.linkPeople.split(',')
+                item.linkPeopleList.forEach(items => {
+                  // items=items.split(":").join("-")
+                  // console.log(items)
+
+                })
+                item.linkPeopleList=item.linkPeopleList
+              }
+              if (item.createTime){
+                item.createTime=formatDate(item.createTime)
+              }
+              
+            })
+          }
+      })
+
+    },
+    handlderive() {
+      this.tableExecl=1
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = [ '国家','省', '市', '机构名称', '经度', '纬度', '发布时间', '联系人', '联系方式','物资清单', '备注']
+          const filterVal = ['country',"province", 'city', 'hospitalName', 'gaodeLon', 'gaodeLat', 'createTime', 'linkPeople', 'linkTel','needsName', 'descr']
+          const data = this.formatJson(filterVal, this.tableDataExecl)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: curDataTime()+"导出记录",
+            autoWidth: true,
+            // filename: this.filename
+          })
+        })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          // if (j === 'materialType') {
+          //   if (v[j]==1){
+          //     v[j]="需求方"
+          //   } else if(v[j]==2){
+          //     v[j]="提供方"
+          //   } else if(v[j]==3){
+          //     v[j]="出力方"
+          //   }
+          //   return v[j]
+          // }
+          // if (j === 'attachment'){
+          //   if (v[j]&&v[j].length){
+          //     v[j]=v[j].join(",")
+          //   }
+          //   return v[j]
+
+          // }
+          // if (j === 'isValid') {
+          //   if (v[j]==0){
+          //     v[j]="未审核"
+          //   } else if(v[j]==1){
+          //     v[j]="审核通过"
+          //   } else if(v[j]==2){
+          //     v[j]="审核不通过"
+          //   } else if(v[j]==3){
+          //     v[j]="后台录入"
+          //   }
+          //   return v[j]
+          // }
+          // if (j === 'hasShow') {
+          //   if (v[j]==0){
+          //     v[j]="未发布"
+          //   } else if(v[j]==1){
+          //     v[j]="已发布"
+          //   }
+          //   return v[j]
+          // }
+          // if (j === 'createTime') {
+          //   if (v[j]){
+          //     v[j]=v[j].substring(0,10)
+          //   }
+          //   return v[j]
+          // }
+          return v[j]
+            
+        })
+      )
+    },
     // 存储查询条件获取
     searchDataSession(){
       let searchData = JSON.parse(sessionStorage.getItem("searchData"))
+      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
 
       if (searchData){
         this.params=searchData
@@ -126,6 +222,21 @@ export default {
           pageSize:this.pageSize
         }
         this.getTableData(this.params)
+      }
+
+      if (searchData1){
+        let x=searchData1
+        this.content=searchData1.content
+        if (searchData1.startDate&&searchData1.endDate){
+
+          this.startEndTate=[searchData1.startDate,searchData1.endDate]
+        }
+        this.getTableDataExecal(x)
+      } else {
+        let x={
+          orgType:1,
+        }
+        this.getTableDataExecal(x)
       }
 
     },
@@ -186,6 +297,22 @@ export default {
       this.$nextTick(() => {
           this.pageshow = true
       })
+      if (this.tableExecl=1){
+        let x={
+          orgType:1,
+          content:this.content,
+        }
+        if (this.startEndTate&&this.startEndTate.length>0){
+          x.startDate=this.startEndTate[0]
+          x.endDate=this.startEndTate[1]
+        } else {
+          x.startDate=''
+          x.endDate=''
+        }
+        this.getTableDataExecal(x)
+        sessionStorage.setItem("searchData1",JSON.stringify(x))
+
+      }
       sessionStorage.setItem("searchData",JSON.stringify(this.params))
 
 

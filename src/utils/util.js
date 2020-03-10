@@ -107,6 +107,8 @@ export function FontSize(){
   var curFontSize=100/1920
   return curHeight
 }
+
+// 时间戳格式化
 export function formatDate(datetime) {
   var date = new Date(datetime);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
   var year = date.getFullYear(),
@@ -120,3 +122,54 @@ export function formatDate(datetime) {
   // 返回
   return result;
 }
+
+// 获取当前时间
+export function curDataTime(datetime) {
+  var date = new Date();//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+  var year = date.getFullYear(),
+      month = ("0" + (date.getMonth() + 1)).slice(-2),
+      sdate = ("0" + date.getDate()).slice(-2),
+      hour = ("0" + date.getHours()).slice(-2),
+      minute = ("0" + date.getMinutes()).slice(-2),
+      second = ("0" + date.getSeconds()).slice(-2);
+  // 拼接
+  var result = year + month + sdate + hour + minute + second;
+  // 返回
+  return result;
+}
+
+
+// 获取每月第一天
+export function getCurrentMonthFirst(){
+  var date = new Date();
+  date.setDate(1);
+  var month = parseInt(date.getMonth()+1);
+  var day = date.getDate();
+  if (month < 10) {
+      month = '0' + month
+  }
+  if (day < 10) {
+      day = '0' + day
+  }
+  return date.getFullYear() + '-' + month + '-' + day;
+}
+
+// 获取每月最后一天
+export function getCurrentMonthLast(){
+  var date=new Date();
+  var currentMonth=date.getMonth();
+  var nextMonth=++currentMonth;
+  var nextMonthFirstDay=new Date(date.getFullYear(),nextMonth,1);
+  var oneDay=1000*60*60*24;
+  var lastTime = new Date(nextMonthFirstDay-oneDay);
+  var month = parseInt(lastTime.getMonth()+1);
+  var day = lastTime.getDate();
+  if (month < 10) {
+      month = '0' + month
+  }
+  if (day < 10) {
+      day = '0' + day
+  }
+  return date.getFullYear() + '-' + month + '-' + day;
+}
+
