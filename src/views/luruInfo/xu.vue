@@ -991,8 +991,12 @@ export default {
       this.getTableData(this.params)
     },
     clickLookGoods(row){
+      this.gridData=[]
       this.dialogTableVisible=true
-      this.gridData=row.materialDetails
+      this.$fetchGet('material/getMaterialDetail',{materialId:row.id}).then(res => {
+        this.gridData=res.data
+      })
+      // this.gridData=row.materialDetails
     },
     goUrl(item){
       window.open(item)
