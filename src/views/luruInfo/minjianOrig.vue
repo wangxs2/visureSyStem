@@ -411,8 +411,11 @@ export default {
                 })
                 item.linkPeopleList=item.linkPeopleList
               }
-              if (item.createTime){
-                item.createTime=formatDate(item.createTime)
+              if (item.startTime){
+                item.startTime=formatDate(item.startTime)
+              }
+              if (item.endTime){
+                item.endTime=formatDate(item.endTime)
               }
               
             })
