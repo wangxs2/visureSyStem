@@ -535,8 +535,8 @@ export default {
 
           
           import('@/vendor/Export2Excel').then(excel => {
-            const tHeader = [ '机构名称','类型','国家','省', '市', '详细地址', '物资提供方式', '物资提供时间', '是否需要物流', '联系人','图片链接', '物资详情','备注','审核状态','审核意见','发布状态']
-            const filterVal = ['name','materialType','country',"province", 'city', 'address', 'status', 'createTime', 'isLogistics', 'linkPeople','attachment', 'detail','descr','isValid','checkDescr','hasShow']
+            const tHeader = [ '机构名称','类型','国家','省', '市', '经度', '纬度', '详细地址', '物资提供方式', '物资提供时间', '是否需要物流', '联系人','图片链接', '物资详情','备注','审核状态','审核意见','发布状态']
+            const filterVal = ['name','materialType','country',"province", 'city', 'longitude', 'latitude', 'address', 'status', 'createTime', 'isLogistics', 'linkPeople','attachment', 'detail','descr','isValid','checkDescr','hasShow']
             const data = this.formatJson(filterVal, this.tableDataExecl)
             excel.export_json_to_excel({
               header: tHeader,
