@@ -35,7 +35,7 @@
         <div class="search-input search-btn" @click="add">新增</div>
       </div>
       <div class="table-wrapper">
-        <el-table :data="tableData.slice((page-1)*pageSize,page*pageSize)" :height="curHeight" ref="table" style="width: 100%">
+        <el-table :data="tableData" :height="curHeight" ref="table" style="width: 100%">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="title" label="标题" :show-overflow-tooltip="true">
             <template slot-scope="scope">
@@ -462,10 +462,12 @@ export default {
       window.open(row.attachment[0])
     },
     handleSizeChange(val) {
+      this.pageSize=val
       this.params.pageSize=val
       this.getTableData(this.params)
     },
     handleCurrentChange(val) {
+      this.page=val
       this.params.page=val
       this.getTableData(this.params)
     },
