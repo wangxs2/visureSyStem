@@ -160,8 +160,10 @@
             <el-radio v-for="item in lonlatType" :key="item.type" :label="item.type">{{item.name}}</el-radio>
           </el-radio-group>
         </el-form-item>
+        <div style="margin-left:30px;margin-bottom:10px;color:#F56C6C">提交经纬度后会自动转换为84经纬度</div>
         <el-form-item>
           <el-button type="primary" @click="submitForm2('lonLatForm')">提交</el-button>
+          <el-button type="primary" @click="dialogVisibleLonLatShow=false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -438,6 +440,9 @@ export default {
       dialogVisibleLonLatShow:false,
       lonlatType:[
         {
+          type:3,
+          name:'84经纬度'
+        },{
           type:1,
           name:'高德经纬度'
         },{
@@ -448,7 +453,7 @@ export default {
       lonLatForm:{
         lon:'', // 经度
         lat:'', // 纬度
-        type:1, // 经纬度类型  1 高德，2 百度
+        type:3, // 经纬度类型  1 高德，2 百度, 3 84
       },
       lonLatRules:{
         lon: [
@@ -481,11 +486,9 @@ export default {
   methods: {
     editLonLatRow(row){
       this.curId=row.id
-      this.lonLatForm={
-        lon:'',
-        lat:'',
-        type:1
-      }
+      this.lonLatForm.lon=row.longitude
+      this.lonLatForm.lat=row.latitude
+      this.lonLatForm.type=3
       this.dialogVisibleLonLatShow=true
     },
     submitForm2(form){
