@@ -51,6 +51,8 @@
           <el-table-column prop="country" label="国家"></el-table-column>
           <el-table-column prop="province" label="省"></el-table-column>
           <el-table-column prop="city" label="市"></el-table-column>
+          <el-table-column prop="longitude" label="经度"></el-table-column>
+          <el-table-column prop="latitude" label="纬度"></el-table-column>
           <el-table-column prop="address" label="详细地址"></el-table-column>
           <el-table-column prop="status" label="物资对接情况">
             <template slot-scope="scope">
@@ -115,6 +117,7 @@
           </el-table-column>
           <el-table-column prop="name" label="查看或操作" fixed="right" width="160">
             <template slot-scope="scope">
+              <el-button @click="editLonLatRow(scope.row)" type="text" size="small">修改经纬度</el-button>
               <el-button @click="clickLookGoods(scope.row)" type="text" size="small">查看所需物资</el-button>
               <el-button @click="clickPublish(scope.row)" type="text" size="small" v-if="scope.row.isValid==0||scope.row.isValid==3">审核</el-button>
               <!-- <el-button @click="editRow(JSON.parse(JSON.stringify(scope.row)))" type="text" size="small">编辑</el-button> -->
@@ -157,6 +160,25 @@
         <el-button @click="dialogVisibleDeleteShow = false">取 消</el-button>
         <el-button type="primary" @click="delectCom">确 定</el-button>
       </span>
+    </el-dialog>
+    <!-- 修改经纬度 -->
+    <el-dialog title="修改经纬度" :visible.sync="dialogVisibleLonLatShow" width="30%" center>
+      <el-form :model="lonLatForm" :rules="lonLatRules" ref="lonLatForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="经度" prop="lon">
+          <el-input v-model="lonLatForm.lon" placeholder="请输入经度"></el-input>
+        </el-form-item>
+        <el-form-item label="纬度" prop="lat">
+          <el-input v-model="lonLatForm.lat" placeholder="请输入纬度"></el-input>
+        </el-form-item>
+        <el-form-item label="经纬度类型" prop="type">
+          <el-radio-group v-model="lonLatForm.type">
+            <el-radio v-for="item in lonlatType" :key="item.type" :label="item.type">{{item.name}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm2('lonLatForm')">提交</el-button>
+        </el-form-item>
+      </el-form>
     </el-dialog>
     <!-- 审核弹框 -->
     <el-dialog title="审核" :visible.sync="dialogPublishShow" :close-on-click-modal="false" width="480" center custom-class="look-goods">
@@ -434,6 +456,32 @@ export default {
         },
       ],
       needList:["N95口罩","外科口罩","一次性医用口罩","隔离衣","一次性手术衣","医用帽","护目镜","防护眼罩","防护面罩","医用手套","防污染鞋套","长筒防护靴","测温仪","84消毒液","75%浓度酒精","一次性消毒床罩","消毒设备","对口药品","负压担架","负压救护车","消洗设备","全面型呼吸防护器","其他"],
+      dialogVisibleLonLatShow:false,
+      lonlatType:[
+        {
+          type:1,
+          name:'高德经纬度'
+        },{
+          type:2,
+          name:'百度经纬度'
+        }
+      ],
+      lonLatForm:{
+        lon:'', // 经度
+        lat:'', // 纬度
+        type:1, // 经纬度类型  1 高德，2 百度
+      },
+      lonLatRules:{
+        lon: [
+          { required: true, message: '请填写经度', trigger: 'blur' }
+        ],
+        lat: [
+          { required: true, message: '请填写纬度', trigger: 'blur' }
+        ],
+        type: [
+          { required: true, message: '请选择经纬度类型', trigger: 'change' }
+        ],
+      }
     }
   },
   mounted () {
@@ -452,6 +500,35 @@ export default {
     this.getNeedsNameList()
   },
   methods: {
+    editLonLatRow(row){
+      this.curId=row.id
+      this.lonLatForm={
+        lon:'',
+        lat:'',
+        type:1
+      }
+      this.dialogVisibleLonLatShow=true
+    },
+    submitForm2(form){
+      this.lonLatForm.materialId=this.curId
+      this.$refs[form].validate((valid) => {
+        if (valid) {
+          this.$fetchPost("material/updateLngLat",this.lonLatForm).then(res => {
+            this.$message({
+              message: res.message,
+              type: 'success'
+            });
+            if (res.result==1){
+              this.dialogVisibleLonLatShow=false
+              this.regetList()
+            }
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      })
+    },
     getTableDataExecal(params){
       this.$fetchGet("material/getMaterial",params).then(res => {
           // this.total=res.data.total
