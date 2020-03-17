@@ -552,23 +552,44 @@ export default {
               
             })
           }
+
+
+
+          
+          import('@/vendor/Export2Excel').then(excel => {
+            const tHeader = [ '机构名称','类型','国家','省', '市', '详细地址', '物资对接情况', '需求发布时间', '需求来源', '联系人','图片链接', '物资详情','备注','审核状态','审核意见','发布状态']
+            const filterVal = ['name','materialType','country',"province", 'city', 'address', 'status', 'createTime', 'source', 'linkPeople','attachment', 'detail','descr','isValid','checkDescr','hasShow']
+            const data = this.formatJson(filterVal, this.tableDataExecl)
+            excel.export_json_to_excel({
+              header: tHeader,
+              data,
+              filename: curDataTime()+"导出记录",
+              autoWidth: true,
+              // filename: this.filename
+            })
+          })
       })
 
     },
     handlderive() {
       this.tableExecl=1
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = [ '机构名称','类型','国家','省', '市', '详细地址', '物资对接情况', '需求发布时间', '需求来源', '联系人','图片链接', '物资详情','备注','审核状态','审核意见','发布状态']
-          const filterVal = ['name','materialType','country',"province", 'city', 'address', 'status', 'createTime', 'source', 'linkPeople','attachment', 'detail','descr','isValid','checkDescr','hasShow']
-          const data = this.formatJson(filterVal, this.tableDataExecl)
-          excel.export_json_to_excel({
-            header: tHeader,
-            data,
-            filename: curDataTime()+"导出记录",
-            autoWidth: true,
-            // filename: this.filename
-          })
-        })
+      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
+
+      if (searchData1){
+        let x=searchData1
+        this.goodsName=searchData1.needName
+        this.acceptInfo=searchData1.status
+        if (searchData1.startDate&&searchData1.endDate){
+
+          this.startEndTate=[searchData1.startDate,searchData1.endDate]
+        }
+        this.getTableDataExecal(x)
+      } else {
+        let x={
+          materialType:1,
+        }
+        this.getTableDataExecal(x)
+      }
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>
@@ -672,7 +693,6 @@ export default {
     // 存储查询条件获取
     searchDataSession(){
       let searchData = JSON.parse(sessionStorage.getItem("searchData"))
-      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
 
       if (searchData){
         this.params=searchData
@@ -690,22 +710,6 @@ export default {
           pageSize:this.pageSize
         }
         this.getTableData(this.params)
-      }
-
-      if (searchData1){
-        let x=searchData1
-        this.goodsName=searchData1.needName
-        this.acceptInfo=searchData1.status
-        if (searchData1.startDate&&searchData1.endDate){
-
-          this.startEndTate=[searchData1.startDate,searchData1.endDate]
-        }
-        this.getTableDataExecal(x)
-      } else {
-        let x={
-          materialType:1,
-        }
-        this.getTableDataExecal(x)
       }
 
 
@@ -1205,7 +1209,7 @@ export default {
           x.startDate=''
           x.endDate=''
         }
-        this.getTableDataExecal(x)
+        // this.getTableDataExecal(x)
         sessionStorage.setItem("searchData1",JSON.stringify(x))
 
       }

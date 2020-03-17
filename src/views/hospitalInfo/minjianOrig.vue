@@ -132,70 +132,48 @@ export default {
               
             })
           }
+          
+          import('@/vendor/Export2Excel').then(excel => {
+            const tHeader = [ '国家','省', '市', '机构名称', '经度', '纬度', '联系人', '联系方式','物资清单', '备注']
+            const filterVal = ['country',"province", 'city', 'hospitalName', 'gaodeLon', 'gaodeLat', 'linkPeople', 'linkTel','needsName', 'descr']
+            const data = this.formatJson(filterVal, this.tableDataExecl)
+            excel.export_json_to_excel({
+              header: tHeader,
+              data,
+              filename: curDataTime()+"导出记录",
+              autoWidth: true,
+              // filename: this.filename
+            })
+          })
+
+
+
+
       })
 
     },
     handlderive() {
       this.tableExecl=1
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = [ '国家','省', '市', '机构名称', '经度', '纬度', '联系人', '联系方式','物资清单', '备注']
-          const filterVal = ['country',"province", 'city', 'hospitalName', 'gaodeLon', 'gaodeLat', 'linkPeople', 'linkTel','needsName', 'descr']
-          const data = this.formatJson(filterVal, this.tableDataExecl)
-          excel.export_json_to_excel({
-            header: tHeader,
-            data,
-            filename: curDataTime()+"导出记录",
-            autoWidth: true,
-            // filename: this.filename
-          })
-        })
+      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
+
+      if (searchData1){
+        let x=searchData1
+        this.content=searchData1.content
+        if (searchData1.startDate&&searchData1.endDate){
+
+          this.startEndTate=[searchData1.startDate,searchData1.endDate]
+        }
+        this.getTableDataExecal(x)
+      } else {
+        let x={
+          orgType:3,
+        }
+        this.getTableDataExecal(x)
+      }
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>
         filterVal.map(j => {
-          // if (j === 'materialType') {
-          //   if (v[j]==1){
-          //     v[j]="需求方"
-          //   } else if(v[j]==2){
-          //     v[j]="提供方"
-          //   } else if(v[j]==3){
-          //     v[j]="出力方"
-          //   }
-          //   return v[j]
-          // }
-          // if (j === 'attachment'){
-          //   if (v[j]&&v[j].length){
-          //     v[j]=v[j].join(",")
-          //   }
-          //   return v[j]
-
-          // }
-          // if (j === 'isValid') {
-          //   if (v[j]==0){
-          //     v[j]="未审核"
-          //   } else if(v[j]==1){
-          //     v[j]="审核通过"
-          //   } else if(v[j]==2){
-          //     v[j]="审核不通过"
-          //   } else if(v[j]==3){
-          //     v[j]="后台录入"
-          //   }
-          //   return v[j]
-          // }
-          // if (j === 'hasShow') {
-          //   if (v[j]==0){
-          //     v[j]="未发布"
-          //   } else if(v[j]==1){
-          //     v[j]="已发布"
-          //   }
-          //   return v[j]
-          // }
-          // if (j === 'createTime') {
-          //   if (v[j]){
-          //     v[j]=v[j].substring(0,10)
-          //   }
-          //   return v[j]
-          // }
           return v[j]
             
         })
@@ -204,7 +182,6 @@ export default {
     // 存储查询条件获取
     searchDataSession(){
       let searchData = JSON.parse(sessionStorage.getItem("searchData"))
-      let searchData1 = JSON.parse(sessionStorage.getItem("searchData1"))
 
       if (searchData){
         this.params=searchData
@@ -221,21 +198,6 @@ export default {
           pageSize:this.pageSize
         }
         this.getTableData(this.params)
-      }
-
-      if (searchData1){
-        let x=searchData1
-        this.content=searchData1.content
-        if (searchData1.startDate&&searchData1.endDate){
-
-          this.startEndTate=[searchData1.startDate,searchData1.endDate]
-        }
-        this.getTableDataExecal(x)
-      } else {
-        let x={
-          orgType:3,
-        }
-        this.getTableDataExecal(x)
       }
 
     },
@@ -308,7 +270,7 @@ export default {
           x.startDate=''
           x.endDate=''
         }
-        this.getTableDataExecal(x)
+        // this.getTableDataExecal(x)
         sessionStorage.setItem("searchData1",JSON.stringify(x))
 
       }
