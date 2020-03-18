@@ -227,8 +227,7 @@
                   <el-input class="sup-name" v-model="iteam.name" type="text" placeholder="输入联系人"></el-input>
                 </div>
                 <div class="num">
-                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)"></el-input>
-                   <!-- @blur="linkTelBlur(1,iteam.tel,index)" -->
+                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)" @blur="linkTelBlur(iteam.tel,index)"></el-input>
                   <img @click="deleteTel(index)" style="" src="../../assets/images/reduce1.png" alt="">
                 </div>
               </div>
@@ -243,7 +242,7 @@
               <el-checkbox v-for="item in luruSupRadio" :key="item.type" :label="item.name">{{item.name}}</el-checkbox>
             </el-checkbox-group>
             <span class="athor">备注(若选择其他服务，请填写备注)</span>
-            <el-input v-model="form1.needsDescr" type="textarea" :rows="2" placeholder="备注(若选择其他，请填写备注)" v-if="changeAnthor" @blur="blurAnthor"></el-input>
+            <el-input v-model="form1.needsDescr" type="textarea" :rows="2" placeholder="备注(若选择其他，请填写备注)" @blur="blurAnthor"></el-input>
           </div>
         </div>
         <div class="input-wrapper">
@@ -338,7 +337,6 @@ export default {
       ],
       materialDetails1:[], // 服务提供类型
       materialDetails:[],
-      changeAnthor:0, //选择其他服务时展示备注
       changeAnthorDesc:0, // 备注中信息是否填写
       telindex:0,
       type:1, // 类型
@@ -616,11 +614,9 @@ export default {
     },
     blurAnthor(){
       if (this.form1.needsDescr){
-        this.changeAnthor=0
         this.changeAnthorDesc=1
 
       } else {
-        this.changeAnthor=1
         this.changeAnthorDesc=0
       }
 
@@ -632,11 +628,9 @@ export default {
         let x=value.indexOf('其他服务')
 
         value.forEach(item => {
-          if (x!=-1){
-            this.changeAnthor=1
-          } else {
-            this.changeAnthor=0
+          if (x==-1){
             this.form1.needsDescr=''
+            this.changeAnthorDesc=1
           }
           obj={
             needsName:item,
@@ -645,9 +639,6 @@ export default {
           this.materialDetails.push(obj)
   
         })
-        console.log(this.materialDetails)
-      } else {
-        this.changeAnthor=0
       }
     },
     addTel(){
@@ -760,7 +751,6 @@ export default {
       
       this.materialDetails1=[] // 服务提供类型
       this.materialDetails=[]
-      this.changeAnthor=0
       this.changeAnthorDesc=0
       this.telindex=0
       this.type=1 // 类型
@@ -782,9 +772,9 @@ export default {
     },
     editRow(row){
 
-      console.log(row)
       this.addOrEditPoint=1
       this.dialogVisibleAddOrEditShow=true
+      this.materialDetails1=[]
       this.curId=row.id
       this.form1={
         materialType:3,
@@ -820,7 +810,6 @@ export default {
       }
       if (row.materialDetails) {
         row.materialDetails.forEach(item=> {
-
 
           this.materialDetails1.push(item.needsName) //需求表
         })
@@ -874,7 +863,6 @@ export default {
 
             this.form1.type=this.type
             this.form1.contectTelList=this.contectTelList
-            console.log(this.form1)
             
             if (this.addOrEditPoint==0){
               this.$fetchPost("material/insert",this.form1,"json").then(res => {
@@ -909,21 +897,27 @@ export default {
     submitForm1(){
       if (this.form1.name==''||this.form1.provinceAndCity==''||this.form1.address==''||this.form1.serviceRange==""||this.form1.startTime==''||this.form1.endTime==""||this.materialDetails1.length==0||this.imgList.length==0){
         this.$message.error( "请输入完整信息");
-      } else if(this.changeAnthor&&!this.changeAnthorDesc) {
+      } else if(!this.changeAnthorDesc) {
         this.$message.error( "选择服务类型中其他服务时请输入备注");
       } else {
         
         
       if (this.form1.needsDescr){
-        this.changeAnthor=1
         this.changeAnthorDesc=1
 
       } else {
-        this.changeAnthor=0
         this.changeAnthorDesc=0
       }
         this.addresschange(this.form1.province+this.form1.city+this.form1.address)
       }
+    },
+    
+    linkTelBlur(tel,index){
+      var strTel=/^[\d\-]+$/g
+        if (!strTel.test(tel)){
+          this.contectTelList[index].tel=''
+          this.$message.error('当前填写电话格式有误')
+        }
     },
     clickPublish(row){
       this.dialogPublishShow=true
@@ -974,7 +968,6 @@ export default {
       
       this.materialDetails1=[] // 服务提供类型
       this.materialDetails=[]
-      this.changeAnthor=0
       this.changeAnthorDesc=0
       this.telindex=0
       this.type=1 // 类型
@@ -1020,7 +1013,6 @@ export default {
         imgList:[] , //图片列表
       },
       this.telindex=0
-      this.changeAnthor=0
       this.changeAnthorDesc=0
       this.type=1 // 类型
       this.imgList=[]  //图片列表

@@ -268,8 +268,7 @@
                   <el-input class="sup-name" v-model="iteam.name" type="text" placeholder="输入联系人"></el-input>
                 </div>
                 <div class="num">
-                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)"></el-input>
-                   <!-- @blur="linkTelBlur(1,iteam.tel,index)" -->
+                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)" @blur="linkTelBlur(iteam.tel,index)"></el-input>
                   <img @click="deleteTel(index)" style="" src="../../assets/images/reduce1.png" alt="">
                 </div>
               </div>
@@ -718,7 +717,7 @@ export default {
 
     },
     changeStatus(value){
-        this.form1.status=value.join(",")
+      this.form1.status=value.join(",")
     },
     changeNeedName(value){
       // console.log(value)
@@ -890,7 +889,6 @@ export default {
     },
     editRow(row){
 
-      console.log(row)
       this.addOrEditPoint=1
       this.dialogVisibleAddOrEditShow=true
       this.curId=row.id
@@ -933,9 +931,8 @@ export default {
       if (row.status){
         let x=row.status.split(",")
         this.status=x.map(Number) // 物资对接情况
+        this.form1.status =  this.status.join(",")
       }
-      
-      console.log(row.materialDetails)
       
       if (row.picUrl) {
         let x=row.picUrl.split(",")
@@ -979,12 +976,10 @@ export default {
               this.form1.linkPeople=linkPeopleArr.join(',')
             })
             
-
             this.form1.type=this.type
             this.form1.materialDetails=this.materialDetails
             this.form1.contectTelList=this.contectTelList
             this.form1.source=this.source
-            console.log(this.form1)
             
             if (this.addOrEditPoint==0){
               this.$fetchPost("material/insert",this.form1,"json").then(res => {
@@ -1022,6 +1017,14 @@ export default {
       } else {
         this.addresschange(this.form1.province+this.form1.city+this.form1.address)
       }
+    },
+    
+    linkTelBlur(tel,index){
+      var strTel=/^[\d\-]+$/g
+        if (!strTel.test(tel)){
+          this.contectTelList[index].tel=''
+          this.$message.error('当前填写电话格式有误')
+        }
     },
     clickPublish(row){
       this.dialogPublishShow=true

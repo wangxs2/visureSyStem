@@ -258,9 +258,8 @@
                 <div class="name">
                   <el-input class="sup-name" v-model="iteam.name" type="text" placeholder="输入联系人"></el-input>
                 </div>
-                <div class="num">
-                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)"></el-input>
-                   <!-- @blur="linkTelBlur(1,iteam.tel,index)" -->
+                <div class='num'>
+                  <el-input class="tel" v-model="iteam.tel" type="text" placeholder="输入电话号码(建议手机)" @blur="linkTelBlur(iteam.tel,index)"></el-input>
                   <img @click="deleteTel(index)" style="" src="../../assets/images/reduce1.png" alt="">
                 </div>
               </div>
@@ -878,12 +877,11 @@ export default {
         this.materialDetails=row.materialDetails //需求表
       }
       this.curNeedName=1
-      console.log(row.isLogistics, row.status)
       this.isLogistics=row.isLogistics // 是否需要物流
       this.type=row.type// 类型
       this.status=Number(row.status) // 物资提供方式
+      this.form1.status = this.status.toString()
       
-      console.log(row.materialDetails)
       
       if (row.picUrl) {
         let x=row.picUrl.split(",")
@@ -927,12 +925,11 @@ export default {
               this.form1.linkPeople=linkPeopleArr.join(',')
             })
             
-
+            this.form1.status = this.status
             this.form1.type=this.type
             this.form1.materialDetails=this.materialDetails
             this.form1.contectTelList=this.contectTelList
             this.form1.isLogistics=this.isLogistics
-            console.log(this.form1)
             
             if (this.addOrEditPoint==0){
               this.$fetchPost("material/insert",this.form1,"json").then(res => {
@@ -970,6 +967,14 @@ export default {
       } else {
         this.addresschange(this.form1.province+this.form1.city+this.form1.address)
       }
+    },
+    
+    linkTelBlur(tel,index){
+      var strTel=/^[\d\-]+$/g
+        if (!strTel.test(tel)){
+          this.contectTelList[index].tel=''
+          this.$message.error('当前填写电话格式有误')
+        }
     },
     clickPublish(row){
       this.dialogPublishShow=true
